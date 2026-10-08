@@ -75,6 +75,15 @@ licensed source), CPI dates (no free machine-readable source reachable from the 
 If a source cannot be downloaded, its inputs are dropped from the tier and the report says so;
 no replacement is chosen after seeing results.
 
+**Amendment, 2026-10-08 22:45 Budapest time, before any v2 result was produced or seen.** The first v2
+run was cancelled during its model step, and its results are not used. The three inputs excluded above
+are added to F2, because each one turned out to be obtainable for free:
+large-trade imbalance (Binance USD-M Bitcoin aggregate trades, trades of at least $100,000 and
+$1,000,000, reduced to hourly totals in parallel yearly jobs); CPI release days and hours (BLS release
+archive and 2026 schedule); and US spot Bitcoin ETF daily net flows (Farside Investors). ETF flows are
+zero before the funds launched on 11 January 2024, and the data has no stated licence, so it is for
+research only and cannot feed a paid feature. Everything else in Version 2 is unchanged.
+
 **Model families.** Simple: ridge regression (penalized linear). Complex: XGBoost (gradient-boosted
 trees). Tuning, refit schedule, costs and targets are the same as in v1. The v1 HAR benchmark stays the
 yardstick for A1 to A3.

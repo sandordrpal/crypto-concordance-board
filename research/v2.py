@@ -28,6 +28,7 @@ FAMILIES = ("ridge", "xgboost")
 ORDER = [f"{t}-{f}" for t in TIERS for f in FAMILIES]          # simplest first
 TIER_NAMES = {"F0": "current", "F1": "current + a few", "F2": "current + all free"}
 LOG = []
+TRADES = None          # folder of hourly large-trade totals from collect_trades.py, set by --trades
 
 
 def log(m):
@@ -68,6 +69,42 @@ def coinbase_premium(v2, btc_close):
     if usdt is not None:                             # Binance prices are in USDT: remove USDT's own premium
         p = p - np.log(usdt["close"].reindex(btc_close.index).ffill(limit=24)).fillna(0)
     return p.clip(-0.05, 0.05)
+
+
+def event_times(v2, name, col):
+    f = Path(v2) / name
+    if not f.exists():
+        return None
+    return pd.to_datetime(pd.read_csv(f)[col]).sort_values().values
+
+
+def etf_daily(v2, days, lag):
+    """Daily US spot Bitcoin ETF net flow in US$ billion. Zero before the funds existed (11 Jan 2024) and on
+    days without trading; `lag` days of publication delay."""
+    f = Path(v2) / "etf_flows.csv"
+    if not f.exists():
+        return None
+    e = pd.read_csv(f, parse_dates=["date"]).groupby("date")["total"].sum() / 1000
+    s = e.reindex(days).fillna(0.0)
+    return s.shift(lag).fillna(0.0)
+
+
+def large_trades(trades_dir):
+    files = sorted(Path(trades_dir).glob("BTCUSDT-*.csv.gz")) if trades_dir else []
+    if not files:
+        return None
+    parts = [pd.read_csv(f, index_col=0, parse_dates=True) for f in files]
+    T = pd.concat(parts).groupby(level=0).sum().sort_index()
+    return T
+
+
+def hours_to_from(times, idx):
+    """Hours from each decision time (end of hour) to the next event and since the last one."""
+    now = (idx + pd.Timedelta(hours=1)).values
+    nxt = np.searchsorted(times, now, side="left")
+    to = np.array([(times[i] - t) / np.timedelta64(1, "h") if i < len(times) else np.inf for i, t in zip(nxt, now)])
+    since = np.array([(t - times[i - 1]) / np.timedelta64(1, "h") if i >= 1 else np.inf for i, t in zip(nxt, now)])
+    return to, since
 
 
 def fomc_times(v2):
@@ -226,6 +263,23 @@ def vol_inputs(hf, data, v2):
         sd = pd.DatetimeIndex(ft_).floor("D")
         X["fomc_next_day"] = days.map(lambda d: float((d + pd.Timedelta(days=1)) in sd)).astype(float)
         X["fomc_next_7d"] = days.map(lambda d: float(((sd > d) & (sd <= d + pd.Timedelta(days=7))).sum())).astype(float)
+    ct = event_times(v2, "cpi.csv", "release_utc")
+    if ct is not None:
+        cd = pd.DatetimeIndex(ct).floor("D")
+        X["cpi_next_day"] = days.map(lambda d: float((d + pd.Timedelta(days=1)) in cd)).astype(float)
+    ef = etf_daily(v2, days, lag=1)
+    if ef is not None:
+        X["etf_flow_1d"] = ef
+        X["etf_flow_5d"] = ef.rolling(5, min_periods=1).sum()
+    T = large_trades(TRADES)
+    if T is not None:
+        Td = T.groupby(T.index.floor("D")).sum().reindex(days)
+        lg = Td["large_buy_q"] + Td["large_sell_q"]
+        tot = Td["buy_q"] + Td["sell_q"]
+        X["large_share_d"] = lg / tot.where(tot > 0)
+        X["large_imb_d"] = (Td["large_buy_q"] - Td["large_sell_q"]) / lg.where(lg > 0)
+        xl = Td["xl_buy_q"] + Td["xl_sell_q"]
+        X["xl_imb_d"] = ((Td["xl_buy_q"] - Td["xl_sell_q"]) / xl.where(xl > 0)).fillna(0).where(tot > 0)
     F2_new = [c for c in X.columns if c not in F1_new]
     F = pd.concat([F, X.replace([np.inf, -np.inf], np.nan)], axis=1)
     # an input needs 200 days of history before the window; each refit then uses it once it has 100 training days
@@ -449,15 +503,25 @@ def intraday_inputs(hf, data, v2):
     if btc["trades"].abs().sum() > 0:
         ts = np.log(btc["quote_volume"].where(btc["quote_volume"] > 0) / btc["trades"].where(btc["trades"] > 0))
         X["trade_size_z"] = (ts - ts.rolling(168, min_periods=48).mean()) / ts.rolling(168, min_periods=48).std()
-    ft_ = fomc_times(v2)
-    if ft_ is not None:
-        now = (idx + pd.Timedelta(hours=1)).values               # decisions are made at the close of each hour
-        nxt = np.searchsorted(ft_, now, side="left")
-        hrs_to = np.array([(ft_[i] - t) / np.timedelta64(1, "h") if i < len(ft_) else np.inf for i, t in zip(nxt, now)])
-        prv = nxt - 1
-        hrs_since = np.array([(t - ft_[i]) / np.timedelta64(1, "h") if i >= 0 else np.inf for i, t in zip(prv, now)])
-        X["fomc_soon"] = np.where((hrs_to >= 0) & (hrs_to <= 24), (24 - hrs_to) / 24, 0.0)
-        X["fomc_after"] = ((hrs_since >= 0) & (hrs_since < 6)).astype(float)
+    for name, times in (("fomc", fomc_times(v2)), ("cpi", event_times(v2, "cpi.csv", "release_utc"))):
+        if times is None:
+            continue
+        to, since = hours_to_from(times, idx)
+        X[f"{name}_soon"] = np.where((to >= 0) & (to <= 24), (24 - to) / 24, 0.0)
+        X[f"{name}_after"] = ((since >= 0) & (since < 6)).astype(float)
+    ef = etf_daily(v2, pd.date_range(idx.min().floor("D"), idx.max().floor("D"), freq="D"), lag=2)
+    if ef is not None:
+        X["etf_flow_1d"] = ef.reindex(idx.floor("D")).values
+    T = large_trades(TRADES)
+    if T is not None:
+        T = T.reindex(idx)
+        for k in (1, 4):
+            lb, ls = T["large_buy_q"].rolling(k).sum(), T["large_sell_q"].rolling(k).sum()
+            X[f"large_imb_{k}h"] = (lb - ls) / (lb + ls).where(lb + ls > 0)
+        tot4 = (T["buy_q"] + T["sell_q"]).rolling(4).sum()
+        X["large_share_4h"] = (T["large_buy_q"] + T["large_sell_q"]).rolling(4).sum() / tot4.where(tot4 > 0)
+        xb, xs = T["xl_buy_q"].rolling(4).sum(), T["xl_sell_q"].rolling(4).sum()
+        X["xl_imb_4h"] = ((xb - xs) / (xb + xs).where(xb + xs > 0)).fillna(0).where(tot4 > 0)
     F2_new = [c for c in X.columns if c not in F1_new]
     F = pd.concat([F, X.replace([np.inf, -np.inf], np.nan)], axis=1)
     cut = START - pd.Timedelta(days=200)
@@ -560,8 +624,11 @@ def main():
     ap.add_argument("--hf", default="out/hf")
     ap.add_argument("--data", default="out/data")
     ap.add_argument("--v2", default="out/v2")
+    ap.add_argument("--trades", default="out/trades")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
+    global TRADES
+    TRADES = a.trades
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()

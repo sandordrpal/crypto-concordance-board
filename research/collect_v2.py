@@ -6,6 +6,8 @@
 - Deribit DVOL, the 30-day implied volatility index from options, hourly, for BTC and ETH.
 - Coinbase Exchange hourly candles for BTC-USD and USDT-USD (for the Coinbase premium).
 - Scheduled FOMC statement times, from the Federal Reserve's published calendar (typed below).
+- CPI release times, from the Bureau of Labor Statistics release archive and 2026 schedule (typed below).
+- US spot Bitcoin ETF daily net flows from Farside Investors (research use only; no stated licence).
 
 Every source fails on its own; status.json says what arrived. Output in <out>/v2/.
 Usage: python research/collect_v2.py --out out --cache v2_cache
@@ -47,6 +49,21 @@ FOMC = """2017-09-20 2017-11-01 2017-12-13
 2025-01-29 2025-03-19 2025-05-07 2025-06-18 2025-07-30 2025-09-17 2025-10-29 2025-12-10
 2026-01-28 2026-03-18 2026-04-29 2026-06-17 2026-07-29 2026-09-16 2026-10-28 2026-12-09
 2027-01-27 2027-03-17 2027-04-28 2027-06-09 2027-07-28 2027-09-15 2027-10-27 2027-12-08"""
+
+
+# CPI release days (08:30 New York time), from bls.gov/bls/news-release/cpi.htm (past releases, dates taken from
+# the release file names) and bls.gov/schedule/news_release/cpi.htm (2026). October 2025 was never published.
+CPI = """2017-08-11 2017-09-14 2017-10-13 2017-11-15 2017-12-13
+2018-01-12 2018-02-14 2018-03-13 2018-04-11 2018-05-10 2018-06-12 2018-07-12 2018-08-10 2018-09-13 2018-10-11 2018-11-14 2018-12-12
+2019-01-11 2019-02-13 2019-03-12 2019-04-10 2019-05-10 2019-06-12 2019-07-11 2019-08-13 2019-09-12 2019-10-10 2019-11-13 2019-12-11
+2020-01-14 2020-02-13 2020-03-11 2020-04-10 2020-05-12 2020-06-10 2020-07-14 2020-08-12 2020-09-11 2020-10-13 2020-11-12 2020-12-10
+2021-01-13 2021-02-10 2021-03-10 2021-04-13 2021-05-12 2021-06-10 2021-07-13 2021-08-11 2021-09-14 2021-10-13 2021-11-10 2021-12-10
+2022-01-12 2022-02-10 2022-03-10 2022-04-12 2022-05-11 2022-06-10 2022-07-13 2022-08-10 2022-09-13 2022-10-13 2022-11-10 2022-12-13
+2023-01-12 2023-02-14 2023-03-14 2023-04-12 2023-05-10 2023-06-13 2023-07-12 2023-08-10 2023-09-13 2023-10-12 2023-11-14 2023-12-12
+2024-01-11 2024-02-13 2024-03-12 2024-04-10 2024-05-15 2024-06-12 2024-07-11 2024-08-14 2024-09-11 2024-10-10 2024-11-13 2024-12-11
+2025-01-15 2025-02-12 2025-03-12 2025-04-10 2025-05-13 2025-06-11 2025-07-15 2025-08-12 2025-09-11 2025-10-24 2025-12-18
+2026-01-13 2026-02-13 2026-03-11 2026-04-10 2026-05-12 2026-06-10 2026-07-14 2026-08-12 2026-09-11 2026-10-14 2026-11-10 2026-12-10"""
+ETF_LAUNCH = "2024-01-11"
 
 
 def read_zip(path):
@@ -230,11 +247,45 @@ def coinbase(product, start):
     return df.set_index("time").sort_index()[["close"]]
 
 
-def fomc_frame():
+def ny_times(days, hhmm):
     ny = ZoneInfo("America/New_York")
-    times = [pd.Timestamp(dt.datetime.fromisoformat(d + "T14:00").replace(tzinfo=ny)).tz_convert("UTC").tz_localize(None)
-             for d in FOMC.split()]
-    return pd.DataFrame({"statement_utc": times})
+    return [pd.Timestamp(dt.datetime.fromisoformat(f"{d}T{hhmm}").replace(tzinfo=ny)).tz_convert("UTC").tz_localize(None)
+            for d in days.split()]
+
+
+def fomc_frame():
+    return pd.DataFrame({"statement_utc": ny_times(FOMC, "14:00")})
+
+
+def cpi_frame():
+    return pd.DataFrame({"release_utc": ny_times(CPI, "08:30")})
+
+
+def etf_flows():
+    """Daily total net flow of US spot Bitcoin ETFs in US$ million, from Farside's all-data table."""
+    r = S.get("https://farside.co.uk/bitcoin-etf-flow-all-data/", timeout=60,
+              headers={"User-Agent": "Mozilla/5.0 (research; github.com/sandordrpal/crypto-concordance-board)"})
+    r.raise_for_status()
+    best = None
+    for t in pd.read_html(io.StringIO(r.text)):
+        cols = [" ".join(map(str, c)) if isinstance(c, tuple) else str(c) for c in t.columns]
+        t.columns = cols
+        tot = [c for c in cols if "Total" in c]
+        if tot and len(t) > 50:
+            best = t.rename(columns={cols[0]: "date", tot[0]: "total"})[["date", "total"]]
+            break
+    if best is None:
+        raise ValueError("flow table not found")
+    best["date"] = pd.to_datetime(best["date"], format="%d %b %Y", errors="coerce")
+    v = best["total"].astype(str).str.replace(",", "").str.strip()
+    neg = v.str.startswith("(")
+    v = pd.to_numeric(v.str.strip("()"), errors="coerce")
+    best["total"] = np.where(neg, -v, v)
+    best = best.dropna(subset=["date"]).dropna(subset=["total"])
+    best = best[best["date"] >= pd.Timestamp(ETF_LAUNCH)]
+    if len(best) < 100:
+        raise ValueError(f"only {len(best)} rows parsed")
+    return best.sort_values("date")
 
 
 def main():
@@ -248,6 +299,16 @@ def main():
     cache.mkdir(parents=True, exist_ok=True)
     fomc_frame().to_csv(out / "fomc.csv", index=False)
     STATUS["fomc"] = {"status": "ok", "rows": len(FOMC.split())}
+    cpi_frame().to_csv(out / "cpi.csv", index=False)
+    STATUS["cpi"] = {"status": "ok", "rows": len(CPI.split())}
+    try:
+        e = etf_flows()
+        e.to_csv(out / "etf_flows.csv", index=False)
+        STATUS["etf_flows"] = {"status": "ok", "rows": int(len(e)), "first": str(e["date"].min().date()), "last": str(e["date"].max().date())}
+        print(f"[ok] ETF flows: {len(e)} days", flush=True)
+    except Exception as ex:
+        STATUS["etf_flows"] = {"status": "error", "error": f"{type(ex).__name__}: {ex}"[:300]}
+        print(f"[fail] ETF flows: {ex}", flush=True)
     for cur in ("BTC", "ETH"):
         try:
             d = deribit_dvol(cur)

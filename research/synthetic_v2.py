@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from collect_v2 import fomc_frame
+from collect_v2 import cpi_frame, fomc_frame
 from common import hourly_symbols, load_hourly
 
 
@@ -69,6 +69,20 @@ def main():
     ui = btc.index[btc.index >= pd.Timestamp("2021-01-01")]
     pd.DataFrame({"time": ui, "close": 1 + 0.0003 * rng.standard_normal(len(ui))}).to_csv(out / "coinbase_USDT-USD.csv", index=False)
     fomc_frame().to_csv(out / "fomc.csv", index=False)
+    cpi_frame().to_csv(out / "cpi.csv", index=False)
+    ed = pd.bdate_range("2024-01-11", btc.index.max())
+    pd.DataFrame({"date": ed, "total": 200 * rng.standard_normal(len(ed))}).to_csv(out / "etf_flows.csv", index=False)
+    tr = Path(a.out) / "trades"
+    tr.mkdir(exist_ok=True)
+    ti = btc.index[btc.index >= pd.Timestamp("2021-01-01")]
+    q = btc["quote_volume"].reindex(ti).values * 3
+    share = np.clip(0.5 + 0.03 * rng.standard_normal(len(ti)), 0.3, 0.7)
+    T = pd.DataFrame({"buy_q": q * share, "sell_q": q * (1 - share)}, index=ti)
+    T["large_buy_q"], T["large_sell_q"] = T["buy_q"] * 0.2, T["sell_q"] * 0.2
+    T["xl_buy_q"], T["xl_sell_q"], T["n_large"] = T["buy_q"] * 0.05, T["sell_q"] * 0.05, 100
+    T.index.name = "time"
+    for y, g in T.groupby(T.index.year):
+        g.to_csv(tr / f"BTCUSDT-{y}.csv.gz")
     status.update({"coinbase_BTC-USD": {"status": "ok"}, "coinbase_USDT-USD": {"status": "ok"}, "fomc": {"status": "ok"}})
     (out / "status.json").write_text(json.dumps({"collected_utc": "simulated", "sources": status}, indent=1))
     print(f"simulated version 2 inputs in {out}")
