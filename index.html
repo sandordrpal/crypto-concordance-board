@@ -70,6 +70,8 @@ button { cursor: pointer; }
 .btn { border: 1px solid var(--line-2); background: var(--surface); border-radius: 6px; padding: 5px 11px; font-weight: 500; }
 .btn:hover { border-color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+.donate .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
 
 /* header */
@@ -356,7 +358,8 @@ const CONFIG = {
   gapFlagBps: 15,
   donation: {
     bitcoinAddress: '',      // paste your Bitcoin RECEIVING address here (never a seed phrase or private key)
-    lightningAddress: ''     // optional, looks like name@provider.com
+    lightningAddress: '',    // optional, looks like name@provider.com
+    buyMeACoffee: 'https://buymeacoffee.com/palsandormd'   // card and PayPal donations; leave '' to hide
   }
 };
 
@@ -856,15 +859,19 @@ function renderHistory() {
 }
 function renderDonate() {
   const a = (CONFIG.donation.bitcoinAddress || '').trim(), l = (CONFIG.donation.lightningAddress || '').trim();
+  const bm = /^https:\/\/(www\.)?buymeacoffee\.com\/[A-Za-z0-9_-]+\/?$/.test((CONFIG.donation.buyMeACoffee || '').trim()) ? CONFIG.donation.buyMeACoffee.trim() : '';
   const box = $('donate');
-  if (!a && !l) {
-    box.innerHTML = '<div class="txt"><h2>Support this board</h2><p class="muted">No donation address has been added yet. The owner can paste a Bitcoin receiving address into the settings block at the top of this file\'s script, and it will appear here with a QR code.</p></div>';
+  if (!a && !l && !bm) {
+    box.innerHTML = '<div class="txt"><h2>Support this board</h2><p class="muted">No donation option has been added yet. The owner can add a Buy Me a Coffee page or a Bitcoin receiving address in the settings block at the top of this file\'s script.</p></div>';
     return;
   }
-  box.innerHTML = '<div class="txt"><h2>Support this board</h2><p>The board is free to use. If it helps you, you can send a donation in Bitcoin.</p>' +
+  const ways = [bm && 'a coffee', (a || l) && 'Bitcoin'].filter(Boolean).join(' or ');
+  box.innerHTML = '<div class="txt"><h2>Support this board</h2><p>The board is free to use. If it helps you, you can support it with ' + ways + '.</p>' +
+    (bm ? '<div class="row"><a class="btn primary" href="' + esc(bm) + '" target="_blank" rel="noopener noreferrer">Buy me a coffee</a><span class="muted mono">' + esc(bm.replace(/^https:\/\//, '')) + '</span></div>' : '') +
     (a ? '<span class="eyebrow">Bitcoin address</span><div class="addr" id="btcAddr">' + esc(a) + '</div><div><button class="btn" type="button" data-copy="btcAddr">Copy address</button></div>' : '') +
     (l ? '<span class="eyebrow">Lightning address</span><div class="addr" id="lnAddr">' + esc(l) + '</div><div><button class="btn" type="button" data-copy="lnAddr">Copy Lightning address</button></div>' : '') +
-    '<p class="note">Check the first and last characters after pasting. Bitcoin payments cannot be reversed.</p></div>' + (a ? '<div class="qr" id="qr" aria-label="QR code for the Bitcoin address"></div>' : '');
+    (a || l ? '<p class="note">Check the first and last characters after pasting. Bitcoin payments cannot be reversed.</p>' : '') +
+    '</div>' + (a ? '<div class="qr" id="qr" aria-label="QR code for the Bitcoin address"></div>' : '');
   if (a && window.QRCode) { try { new window.QRCode($('qr'), { text: 'bitcoin:' + a, width: 136, height: 136, colorDark: '#000000', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M }); } catch (e) { $('qr').hidden = true; } }
   else if (a) $('qr').hidden = true;
 }

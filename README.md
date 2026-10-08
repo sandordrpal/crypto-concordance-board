@@ -47,7 +47,8 @@ Each source fails independently; its status is shown at the top of the page. Rat
 Edit the `CONFIG` block at the top of the script in `index.html`:
 
 - `refreshSeconds`, `universeSize` and the refresh intervals of each source;
-- `donation.bitcoinAddress` and `donation.lightningAddress`. Paste a **receiving** address only, never a seed phrase or private key. The donation panel stays empty until an address is set.
+- `donation.buyMeACoffee`, the Buy Me a Coffee page shown as a button in the support panel (set to `''` to hide it);
+- `donation.bitcoinAddress` and `donation.lightningAddress`. Paste a **receiving** address only, never a seed phrase or private key. Each option appears only once it is set.
 
 ## Known limits
 
@@ -58,6 +59,10 @@ Edit the `CONFIG` block at the top of the script in `index.html`:
 - The history test covers a few weeks of overlapping, correlated data and excludes positioning.
 - No on-chain, ETF-flow or macro data. No server, so no alerts and no long-term stored track record.
 - Visitors in countries where Binance blocks access will not get live data.
+
+## Support
+
+If the board is useful to you, you can support it at [buymeacoffee.com/palsandormd](https://buymeacoffee.com/palsandormd).
 
 ## Attribution
 
