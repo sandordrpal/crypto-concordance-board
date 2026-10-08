@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Crypto Concordance Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: status header, a one-line market read with a tally bar, then a 50-row
+   board beside a sticky detail panel; history test, reading guide and donation below. */
+:root {
+  --bg: #eef1f5; --surface: #ffffff; --surface-2: #f5f7fa;
+  --ink: #111822; --ink-2: #465264; --muted: #667284;
+  --line: #dbe1ea; --line-2: #c3ccd8;
+  --up: #2a78d6; --up-2: #86b6ef; --up-soft: #e3eefb;
+  --dn: #d9582a; --dn-2: #efa27f; --dn-soft: #fbe8df;
+  --split: #a8449a; --split-soft: #f3e1f0;
+  --quiet: #98a3b2; --quiet-soft: #e6eaf0;
+  --accent: #0d6b66; --accent-soft: #dcefed;
+  --warn-ink: #7a5200; --warn-bg: #fff3d6; --warn-line: #e6c36a;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1218; --surface: #161c24; --surface-2: #1b232d;
+    --ink: #e8edf3; --ink-2: #b6c0cd; --muted: #8a96a6;
+    --line: #28323e; --line-2: #3a4655;
+    --up: #3987e5; --up-2: #1f5fae; --up-soft: #17304e;
+    --dn: #e2702f; --dn-2: #a34d22; --dn-soft: #44271a;
+    --split: #c95bb8; --split-soft: #40223b;
+    --quiet: #6f7b8a; --quiet-soft: #252e39;
+    --accent: #4cc3bb; --accent-soft: #12383a;
+    --warn-ink: #f3d489; --warn-bg: #3a2e10; --warn-line: #77601f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1218; --surface: #161c24; --surface-2: #1b232d;
+  --ink: #e8edf3; --ink-2: #b6c0cd; --muted: #8a96a6;
+  --line: #28323e; --line-2: #3a4655;
+  --up: #3987e5; --up-2: #1f5fae; --up-soft: #17304e;
+  --dn: #e2702f; --dn-2: #a34d22; --dn-soft: #44271a;
+  --split: #c95bb8; --split-soft: #40223b;
+  --quiet: #6f7b8a; --quiet-soft: #252e39;
+  --accent: #4cc3bb; --accent-soft: #12383a;
+  --warn-ink: #f3d489; --warn-bg: #3a2e10; --warn-line: #77601f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--body); }
+[hidden] { display: none !important; }
+.wrap { max-width: 1400px; margin: 0 auto; padding-inline: 20px; padding-block: 20px 48px; display: flex; flex-direction: column; gap: 16px; }
+h1, h2, h3 { font-family: var(--display); font-stretch: 88%; margin: 0; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 750; letter-spacing: -0.01em; line-height: 1.1; }
+h2 { font-size: 17px; font-weight: 700; }
+h3 { font-size: 14px; font-weight: 700; }
+p { margin: 0; }
+.num, td.n, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 11px/1.2 var(--display); font-stretch: 100%; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn { border: 1px solid var(--line-2); background: var(--surface); border-radius: 6px; padding: 5px 11px; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.top .brand { min-width: 0; flex: 1 1 380px; display: flex; flex-direction: column; gap: 6px; }
+.top .brand p { color: var(--ink-2); max-width: 68ch; }
+.live { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 4px 11px 4px 9px; font-weight: 600; white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--quiet); flex: none; }
+.dot.ok { background: var(--accent); } .dot.err { background: var(--dn); } .dot.wait { background: var(--quiet); } .dot.demo { background: var(--split); }
+.clock { display: flex; flex-direction: column; gap: 4px; min-width: 150px; }
+.clock span { font-size: 12px; color: var(--ink-2); }
+.meter { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--accent); }
+
+.banner { border: 1px solid var(--warn-line); background: var(--warn-bg); color: var(--warn-ink); border-radius: var(--r); padding: 10px 14px; font-weight: 500; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.notice { display: flex; flex-direction: column; gap: 10px; }
+.notice ul { margin: 0; padding-left: 18px; color: var(--ink-2); }
+.notice .row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* overview */
+.overview { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; }
+.tally { display: flex; flex-direction: column; gap: 12px; }
+.read { font: 600 20px/1.3 var(--display); font-stretch: 92%; text-wrap: balance; }
+.stack { display: flex; gap: 2px; height: 30px; }
+.stack > span { min-width: 4px; display: flex; align-items: center; justify-content: center; font: 600 12px var(--mono); border-radius: 3px; overflow: hidden; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.sw { width: 11px; height: 11px; border-radius: 2px; flex: none; }
+.bg-aup { background: var(--up); color: #fff; } .bg-lup { background: var(--up-2); color: var(--ink); }
+.bg-split { background: var(--split); color: #fff; } .bg-quiet { background: var(--quiet-soft); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line-2); }
+.bg-ldn { background: var(--dn-2); color: var(--ink); } .bg-adn { background: var(--dn); color: #fff; } .bg-na { background: var(--surface-2); }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; align-content: start; }
+.kpi { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kpi b { font: 600 22px/1.15 var(--display); font-stretch: 92%; }
+.kpi small { color: var(--muted); font-size: 12px; }
+
+.sources { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12.5px; }
+.src { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 4px 10px; }
+.src b { font-weight: 600; } .src em { font-style: normal; color: var(--muted); }
+
+/* board + detail */
+.work { display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 16px; align-items: start; }
+.board { padding: 0; min-width: 0; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.tools input { border: 1px solid var(--line-2); background: var(--surface); border-radius: 6px; padding: 5px 10px; width: 170px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.fchip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; }
+.fchip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.keyline { padding: 8px 16px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.keyline b { color: var(--ink-2); font-family: var(--mono); font-weight: 600; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; }
+.board table { min-width: 800px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; vertical-align: middle; }
+th { font: 600 11px/1.2 var(--display); font-stretch: 100%; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+th[aria-sort] button { color: var(--ink); }
+td.n, th.n { text-align: right; }
+.board tbody tr { cursor: pointer; }
+.board tbody tr:hover { background: var(--surface-2); }
+.board tbody tr[aria-selected="true"] { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.board tbody tr:last-child td { border-bottom: 0; }
+.coin { display: flex; flex-direction: column; line-height: 1.25; }
+.coin b { font: 700 13.5px var(--display); font-stretch: 96%; letter-spacing: .01em; }
+.coin small { color: var(--muted); font-size: 11.5px; max-width: 124px; overflow: hidden; text-overflow: ellipsis; }
+.votes { display: inline-flex; gap: 3px; }
+.v { width: 18px; height: 18px; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1; }
+.v.up { background: var(--up); color: #fff; } .v.dn { background: var(--dn); color: #fff; }
+.v.flat { box-shadow: inset 0 0 0 1px var(--line-2); color: var(--muted); font-size: 12px; }
+.v.na { box-shadow: inset 0 0 0 1px var(--line); color: var(--line-2); background: repeating-linear-gradient(135deg, transparent 0 3px, var(--line) 3px 4px); }
+.net { display: inline-flex; align-items: center; gap: 8px; }
+.net .bar { position: relative; width: 58px; height: 8px; background: var(--surface-2); border-radius: 2px; box-shadow: inset 0 0 0 1px var(--line); }
+.net .bar::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--line-2); }
+.net .bar i { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
+.net .num { width: 32px; text-align: right; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px 2px 8px; font-weight: 600; font-size: 12.5px; }
+.pill i { font-style: normal; font-size: 10px; }
+.st-aup { background: var(--up-soft); } .st-aup i { color: var(--up); }
+.st-lup { background: var(--surface); box-shadow: inset 0 0 0 1px var(--up-2); } .st-lup i { color: var(--up); }
+.st-split { background: var(--split-soft); } .st-split i { color: var(--split); }
+.st-quiet { background: var(--quiet-soft); color: var(--ink-2); } .st-na { background: var(--surface-2); color: var(--muted); }
+.st-ldn { background: var(--surface); box-shadow: inset 0 0 0 1px var(--dn-2); } .st-ldn i { color: var(--dn); }
+.st-adn { background: var(--dn-soft); } .st-adn i { color: var(--dn); }
+.changed { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-left: 6px; vertical-align: middle; }
+.flag { font-weight: 600; color: var(--warn-ink); background: var(--warn-bg); border-radius: 4px; padding: 0 5px; }
+.empty { padding: 28px 16px; text-align: center; color: var(--muted); }
+
+.detail { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.ds { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.dhead { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; justify-content: space-between; }
+.dhead .t { display: flex; gap: 10px; align-items: baseline; min-width: 0; }
+.dhead .t b { font: 750 22px/1 var(--display); font-stretch: 90%; }
+.dhead .px { font: 600 20px var(--mono); }
+.chartwrap { position: relative; }
+svg.chart { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .axis { fill: var(--muted); font: 12px var(--mono); }
+.chart .line { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart .area { fill: var(--accent); opacity: .09; }
+.chart .end { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+.chart .band { stroke: var(--accent); stroke-width: 2; fill: var(--accent); fill-opacity: .16; }
+.chart .cross { stroke: var(--line-2); stroke-width: 1; }
+.tip { position: absolute; top: 4px; pointer-events: none; background: var(--ink); color: var(--surface); border-radius: 5px; padding: 3px 8px; font: 12px var(--mono); white-space: nowrap; transform: translateX(-50%); }
+.rng { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font-size: 13px; }
+.rng dt { color: var(--ink-2); } .rng dd { margin: 0; font-family: var(--mono); }
+.note { font-size: 12px; color: var(--muted); }
+.sig { display: flex; flex-direction: column; }
+.sig > div { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 2px 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.sig > div .v { grid-row: span 2; margin-top: 1px; }
+.sig strong { font-weight: 600; } .sig span.d { color: var(--ink-2); font-size: 12.5px; grid-column: 2; }
+.tl { display: block; width: 100%; height: 14px; border-radius: 3px; }
+.f-aup { fill: var(--up); } .f-lup { fill: var(--up-2); } .f-split { fill: var(--split); } .f-quiet { fill: var(--quiet-soft); }
+.f-ldn { fill: var(--dn-2); } .f-adn { fill: var(--dn); } .f-na { fill: var(--surface-2); }
+.tlcap { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.venues td, .venues th { padding: 5px 8px; font-size: 12.5px; }
+
+/* lower sections */
+.lower { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.sect { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.sect p, .sect li { color: var(--ink-2); max-width: 72ch; }
+.sect ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.hbar { display: inline-block; height: 8px; border-radius: 2px; background: var(--accent); vertical-align: middle; margin-right: 8px; min-width: 2px; }
+.rules td, .rules th { white-space: normal; font-size: 12.5px; vertical-align: top; }
+.rules td:first-child { font-weight: 600; white-space: nowrap; }
+.donate { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; }
+.donate .txt { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.addr { font: 13px var(--mono); background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; overflow-wrap: anywhere; user-select: all; }
+.qr { background: #ffffff; padding: 10px; border-radius: 6px; border: 1px solid var(--line); line-height: 0; }
+.qr img, .qr canvas { display: block; }
+footer { color: var(--muted); font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 1240px) {
+  .work { grid-template-columns: minmax(0, 1fr); }
+  .detail { position: static; order: -1; }
+}
+@media (max-width: 1020px) {
+  .overview, .lower { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .wrap { padding-inline: 16px; }
+  h1 { font-size: 24px; } .read { font-size: 17px; }
+  .tools input { width: 100%; }
+}
+@media (prefers-reduced-motion: no-preference) { .meter i { transition: width 1s linear; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Crypto Concordance Board</h1>
+      <p>Six signal families vote up, down or flat on each of 50 coins. The board shows where they agree, where they split, and how far exchanges disagree on price.</p>
+    </div>
+    <div class="live">
+      <span class="chip" id="liveChip"><span class="dot wait" id="liveDot"></span><span id="liveTxt">Starting</span></span>
+      <div class="clock"><span id="clockTxt">Connecting to market data</span><div class="meter"><i id="meter"></i></div></div>
+      <button class="btn" id="pauseBtn" type="button">Pause</button>
+      <button class="btn" id="nowBtn" type="button">Update now</button>
+    </div>
+  </header>
+
+  <div class="banner" id="demoBanner" hidden>
+    <span><strong>Simulated data.</strong> These numbers are generated in your browser to show how the board works. They are not market prices.</span>
+    <button class="btn" id="liveBtn" type="button">Try live data</button>
+  </div>
+
+  <section class="panel notice" id="blocked" hidden>
+    <h2>Live market data did not load</h2>
+    <p id="blockedWhy" class="muted"></p>
+    <ul>
+      <li>Open this file in a normal browser tab. Previews inside other apps often block outside connections.</li>
+      <li>Check that binance.com market data is reachable from your network and country.</li>
+      <li>Ad blockers and privacy extensions sometimes block exchange addresses.</li>
+    </ul>
+    <div class="row">
+      <button class="btn primary" id="retryBtn" type="button">Try again</button>
+      <button class="btn" id="demoBtn" type="button">Show the board with simulated data</button>
+    </div>
+  </section>
+
+  <section class="panel" id="loading">
+    <h2 id="loadTitle">Loading market data</h2>
+    <p class="muted" id="loadTxt">Choosing the 50 coins.</p>
+  </section>
+
+  <main id="app" hidden style="display:flex;flex-direction:column;gap:16px">
+    <section class="overview">
+      <div class="panel tally">
+        <span class="eyebrow">Where the 50 stand now</span>
+        <p class="read" id="read"></p>
+        <div class="stack" id="stack" role="img" aria-label="Coins by agreement state"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="panel kpis" id="kpis"></div>
+    </section>
+
+    <div class="sources" id="sources"></div>
+
+    <div class="work">
+      <section class="panel board">
+        <div class="tools">
+          <input id="q" type="search" placeholder="Find a coin" aria-label="Find a coin">
+          <div class="filters" id="filters"></div>
+        </div>
+        <div class="keyline">Signal order:
+          <span><b>T</b> trend</span><span><b>X</b> stretch</span><span><b>F</b> order flow</span>
+          <span><b>P</b> futures positioning</span><span><b>M</b> market tide</span><span><b>S</b> sentiment</span>
+          <span>▲ up · ▼ down · – flat · hatched = no data</span>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead><tr id="thead"></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="noRows" hidden>No coin matches that search and filter.</div>
+      </section>
+      <aside class="panel detail" id="detail" aria-live="off"></aside>
+    </div>
+
+    <div class="lower">
+      <section class="panel sect">
+        <h2>What followed each state in the last 30 days</h2>
+        <p>For every coin and every past hour, the board rebuilds the state using only data available at that hour, then looks at what the price did next. This is the test of whether the states carry information.</p>
+        <div class="scroll"><table id="histTable"></table></div>
+        <ul class="note" id="histNote"></ul>
+      </section>
+      <section class="panel sect">
+        <h2>How each family votes</h2>
+        <div class="scroll">
+          <table class="rules">
+            <thead><tr><th>Family</th><th>Votes up when</th><th>Votes down when</th></tr></thead>
+            <tbody>
+              <tr><td>T · Trend</td><td>At least two more of four checks point up than down: 24-hour, 3-day and 7-day return, and price against its 7-day average.</td><td>The same checks point down.</td></tr>
+              <tr><td>X · Stretch</td><td>Price is 2 standard deviations or more below its 7-day average.</td><td>Price is 2 standard deviations or more above it.</td></tr>
+              <tr><td>F · Order flow</td><td>Buyers' share of 24-hour traded volume is in the top fifth of the coin's last 20 days.</td><td>It is in the bottom fifth.</td></tr>
+              <tr><td>P · Positioning</td><td>Futures funding is −0.01% or lower, so shorts are paying.</td><td>Funding is +0.05% or higher, so longs are crowded.</td></tr>
+              <tr><td>M · Market tide</td><td>65% or more of the tracked coins trade above their 7-day average.</td><td>35% or fewer do.</td></tr>
+              <tr><td>S · Sentiment</td><td>Fear &amp; Greed Index is 25 or lower (extreme fear).</td><td>It is 75 or higher (extreme greed).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>The two scores</h3>
+        <ul>
+          <li><strong>Net</strong> is up votes minus down votes, as a share of the families with data. It runs from −100 to +100.</li>
+          <li><strong>Discord</strong> is the share of non-flat votes on the losing side, doubled. 0 means nobody disagrees. 100 means an even split.</li>
+          <li><strong>Exchange gap</strong> is the distance between the highest and lowest price across Binance, OKX and Bybit, in basis points (1 bp = 0.01%).</li>
+        </ul>
+        <h3>Limits</h3>
+        <ul>
+          <li>The voting rules are plain heuristics. They have not been shown to predict prices.</li>
+          <li>Stretch, positioning and sentiment are read as contrarian, which is a convention and not a proven effect.</li>
+          <li>The families are not independent, so agreement can look stronger than it is.</li>
+          <li>On-chain data, ETF flows and macro releases are not included because they have no free feed a browser can call.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section class="panel donate" id="donate"></section>
+  </main>
+
+  <footer>
+    <span>Market data: public endpoints of Binance, OKX and Bybit. Sentiment: Crypto Fear &amp; Greed Index by alternative.me.</span>
+    <span>Information only. Nothing here is investment advice, and no state on this board is a recommendation to buy or sell.</span>
+  </footer>
+</div>
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* ---------- settings you can change ---------- */
+const CONFIG = {
+  refreshSeconds: 20,        // price refresh
+  universeSize: 50,
+  klineLimit: 720,           // 30 days of hourly candles
+  klinesPerTick: 5,          // candles are refreshed for 5 coins per tick, all 50 every ~200 s
+  futuresEverySec: 60,
+  venuesEverySec: 120,
+  sentimentEverySec: 1800,
+  gapFlagBps: 15,
+  donation: {
+    bitcoinAddress: '',      // paste your Bitcoin RECEIVING address here (never a seed phrase or private key)
+    lightningAddress: ''     // optional, looks like name@provider.com
+  }
+};
+
+const CANDIDATES = [
+  ['BTC','Bitcoin'],['ETH','Ethereum'],['XRP','XRP'],['BNB','BNB'],['SOL','Solana'],['DOGE','Dogecoin'],['TRX','TRON'],
+  ['ADA','Cardano'],['LINK','Chainlink'],['AVAX','Avalanche'],['SUI','Sui'],['XLM','Stellar'],['BCH','Bitcoin Cash'],
+  ['HBAR','Hedera'],['LTC','Litecoin'],['TON','Toncoin'],['SHIB','Shiba Inu'],['DOT','Polkadot'],['UNI','Uniswap'],
+  ['AAVE','Aave'],['NEAR','NEAR Protocol'],['PEPE','Pepe'],['TAO','Bittensor'],['APT','Aptos'],['ICP','Internet Computer'],
+  ['ETC','Ethereum Classic'],['ONDO','Ondo'],['ENA','Ethena'],['POL','Polygon'],['ARB','Arbitrum'],['ATOM','Cosmos'],
+  ['ALGO','Algorand'],['RENDER','Render'],['FIL','Filecoin'],['VET','VeChain'],['WLD','Worldcoin'],['OP','Optimism'],
+  ['INJ','Injective'],['SEI','Sei'],['FET','Artificial Superintelligence Alliance'],['TIA','Celestia'],['STX','Stacks'],
+  ['JUP','Jupiter'],['BONK','Bonk'],['IMX','Immutable'],['GRT','The Graph'],['LDO','Lido DAO'],['CRV','Curve DAO'],
+  ['WIF','dogwifhat'],['ZEC','Zcash'],['QNT','Quant'],['PENGU','Pudgy Penguins'],['TRUMP','Official Trump'],
+  ['PYTH','Pyth Network'],['FLOKI','Floki'],['XTZ','Tezos'],['SAND','The Sandbox'],['THETA','Theta Network'],
+  ['RUNE','THORChain'],['GALA','Gala'],['MANA','Decentraland'],['CAKE','PancakeSwap'],['EGLD','MultiversX'],['IOTA','IOTA']
+];
+const NOT_COINS = new Set(['USDC','FDUSD','TUSD','USDP','DAI','USDE','EUR','EURI','AEUR','BUSD','USD1','XUSD','BFUSD','PYUSD','RLUSD','USDS','WBTC','WBETH','WETH','BETH','PAXG','XAUT']);
+
+const SRC = {
+  spot:  { label: 'Binance spot',    what: 'prices, candles, order flow', hosts: ['https://data-api.binance.vision', 'https://api.binance.com', 'https://api-gcp.binance.com'] },
+  fut:   { label: 'Binance futures', what: 'funding and basis',           hosts: ['https://fapi.binance.com'] },
+  okx:   { label: 'OKX',             what: 'price cross-check',           hosts: ['https://www.okx.com'] },
+  bybit: { label: 'Bybit',           what: 'price cross-check',           hosts: ['https://api.bybit.com'] },
+  fng:   { label: 'Fear & Greed',    what: 'sentiment index',             hosts: ['https://api.alternative.me'] }
+};
+const ORDER = ['aup', 'lup', 'split', 'quiet', 'ldn', 'adn'];
+const ST = {
+  aup: { label: 'Aligned up', g: '▲' }, lup: { label: 'Leaning up', g: '△' }, split: { label: 'Split', g: '◆' },
+  quiet: { label: 'Quiet', g: '○' }, ldn: { label: 'Leaning down', g: '▽' }, adn: { label: 'Aligned down', g: '▼' },
+  na: { label: 'Not enough data', g: '·' }
+};
+const ST_CODE = { aup: 0, lup: 1, split: 2, quiet: 3, ldn: 4, adn: 5, na: 6 };
+const CODE_ST = ['aup', 'lup', 'split', 'quiet', 'ldn', 'adn', 'na'];
+const FAM = ['Trend', 'Stretch', 'Order flow', 'Positioning', 'Market tide', 'Sentiment'];
+const FAM_KEY = ['T', 'X', 'F', 'P', 'M', 'S'];
+const HOUR = 3600000;
+
+const S = {
+  coins: [], sel: null, sort: { key: 'vol', dir: -1 }, filter: 'all', q: '',
+  demo: false, paused: false, busy: false, started: false, nextAt: 0, lastTick: 0,
+  src: {}, due: { fut: 0, venues: 0, fng: 0 }, fng: null, tide: null, hist: null,
+  histDirty: true, cursor: 0, hourSeen: 0, venueAt: 0, dropped: []
+};
+for (const k in SRC) S.src[k] = { status: 'wait', last: 0, err: '', pausedUntil: 0, host: 0 };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- pure scoring logic ---------- */
+function classify(v) {
+  let p = 0, m = 0, z = 0, n = 0;
+  for (const x of v) { if (x == null) continue; n++; if (x > 0) p++; else if (x < 0) m++; else z++; }
+  const net = p - m;
+  const C = n ? Math.round(100 * net / n) : 0;
+  const D = (p + m) ? Math.round(200 * Math.min(p, m) / (p + m)) : 0;
+  let st;
+  if (n < 3) st = 'na';
+  else if (p + m < 2) st = 'quiet';
+  else if (Math.min(p, m) === 0) st = Math.max(p, m) >= 3 ? (p ? 'aup' : 'adn') : (p ? 'lup' : 'ldn');
+  else if (Math.abs(net) >= 2) st = net > 0 ? 'lup' : 'ldn';
+  else st = 'split';
+  return { p, m, z, n, net, C, D, st };
+}
+const tideVote = s => s == null ? null : s >= 0.65 ? 1 : s <= 0.35 ? -1 : 0;
+const sentVote = v => v == null ? null : v <= 25 ? 1 : v >= 75 ? -1 : 0;
+const fundVote = fr => fr == null || !isFinite(fr) ? null : fr >= 0.0005 ? -1 : fr <= -0.0001 ? 1 : 0;
+function quantile(arr, q) {
+  const a = Float64Array.from(arr).sort(); if (!a.length) return NaN;
+  const pos = (a.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return a[lo] + (a[hi] - a[lo]) * (pos - lo);
+}
+
+function pushRow(c, t, close, q, b) {
+  const T = c.T;
+  if (T.length) {
+    let last = T[T.length - 1];
+    if (t <= last) { const i = T.length - 1 - Math.round((last - t) / HOUR); if (i >= 0) { c.C[i] = close; c.Q[i] = q; c.B[i] = b; } return; }
+    let guard = 0;
+    while (t - last > HOUR && guard++ < 2000) { last += HOUR; T.push(last); c.C.push(c.C[c.C.length - 1]); c.Q.push(0); c.B.push(0); }
+  }
+  T.push(t); c.C.push(close); c.Q.push(q); c.B.push(b);
+}
+function mergeKlines(c, rows) {
+  if (!Array.isArray(rows)) return;
+  for (const r of rows) { const cl = +r[4]; if (isFinite(cl) && cl > 0) pushRow(c, +r[0], cl, +r[7] || 0, +r[10] || 0); }
+  const extra = c.T.length - 900;
+  if (extra > 0) { c.T.splice(0, extra); c.C.splice(0, extra); c.Q.splice(0, extra); c.B.splice(0, extra); }
+  c.dirty = true;
+}
+function prep(c) {
+  const C = c.C, Q = c.Q, B = c.B, n = C.length;
+  const pC = new Float64Array(n + 1), pC2 = new Float64Array(n + 1), pQ = new Float64Array(n + 1), pB = new Float64Array(n + 1), pL2 = new Float64Array(n + 1);
+  const ema = new Float64Array(n), lr = new Float64Array(n), tb = new Float64Array(n).fill(NaN);
+  const a = 2 / 169, k = C[0] || 1;
+  for (let i = 0; i < n; i++) {
+    const x = C[i] / k;                                   // normalised so squares stay well conditioned
+    pC[i + 1] = pC[i] + x; pC2[i + 1] = pC2[i] + x * x; pQ[i + 1] = pQ[i] + Q[i]; pB[i + 1] = pB[i] + B[i];
+    lr[i] = i ? Math.log(C[i] / C[i - 1]) : 0; pL2[i + 1] = pL2[i] + lr[i] * lr[i];
+    ema[i] = i ? ema[i - 1] + a * (C[i] - ema[i - 1]) : C[0];
+    if (i >= 23) { const q = pQ[i + 1] - pQ[i - 23]; tb[i] = q > 0 ? (pB[i + 1] - pB[i - 23]) / q : NaN; }
+  }
+  c.p = { pC, pC2, pL2, ema, lr, tb, k };
+}
+function metricsAt(c, i) {
+  if (i < 168) return null;
+  const { pC, pC2, pL2, ema, tb, k } = c.p, C = c.C, x = C[i];
+  const r24 = x / C[i - 24] - 1, r72 = x / C[i - 72] - 1, r168 = x / C[i - 168] - 1;
+  const sig = Math.sqrt((pL2[i + 1] - pL2[i - 167]) / 168);
+  const mean = (pC[i + 1] - pC[i - 167]) / 168;
+  const sd = Math.sqrt(Math.max((pC2[i + 1] - pC2[i - 167]) / 168 - mean * mean, 0));
+  const z = sd > 0 ? (x / k - mean) / sd : 0;
+  const sg = (r, h) => Math.abs(r) > 0.25 * sig * Math.sqrt(h) ? Math.sign(r) : 0;
+  const above = x > ema[i];
+  const s = sg(r24, 24) + sg(r72, 72) + sg(r168, 168) + (above ? 1 : -1);
+  const trend = s >= 2 ? 1 : s <= -2 ? -1 : 0;
+  const stretch = z >= 2 ? -1 : z <= -2 ? 1 : 0;
+  let flow = null, pct = NaN; const cur = tb[i];
+  if (isFinite(cur)) {
+    let cnt = 0, below = 0;
+    for (let j = Math.max(23, i - 480); j < i; j++) { const y = tb[j]; if (isFinite(y)) { cnt++; if (y < cur) below++; } }
+    if (cnt >= 120) { pct = below / cnt; flow = pct >= 0.8 ? 1 : pct <= 0.2 ? -1 : 0; }
+  }
+  return { r24, r72, r168, sig, z, above, tb: cur, pct, trend, stretch, flow };
+}
+function histCoin(c) {
+  const n = c.C.length;
+  const tr = new Int8Array(n), sx = new Int8Array(n), fl = new Int8Array(n).fill(2), ab = new Int8Array(n).fill(-1);
+  for (let i = 168; i < n; i++) { const m = metricsAt(c, i); tr[i] = m.trend; sx[i] = m.stretch; fl[i] = m.flow == null ? 2 : m.flow; ab[i] = m.above ? 1 : 0; }
+  c.hv = { tr, sx, fl, ab };
+  const a1 = [], a24 = [], lr = c.p.lr;
+  for (let i = Math.max(1, n - 721); i < n - 1; i++) a1.push(Math.abs(lr[i]));
+  for (let i = Math.max(24, n - 721); i < n - 1; i++) a24.push(Math.abs(Math.log(c.C[i] / c.C[i - 24])));
+  c.rng = (a1.length >= 100 && a24.length >= 100) ? { h1: quantile(a1, 0.68), h24: quantile(a24, 0.68), h1x: quantile(a1, 0.95), h24x: quantile(a24, 0.95) } : null;
+}
+function sentAt(t) {
+  const f = S.fng; if (!f || !f.length || t < f[0].t) return null;
+  let lo = 0, hi = f.length - 1;
+  while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (f[mid].t <= t) lo = mid; else hi = mid - 1; }
+  return f[lo].v;
+}
+function buildHistory() {
+  const cnt = new Map(), abv = new Map();
+  for (const c of S.coins) { if (!c.hv) continue; const ab = c.hv.ab; for (let i = 168; i < c.T.length; i++) { const t = c.T[i]; cnt.set(t, (cnt.get(t) || 0) + 1); if (ab[i] === 1) abv.set(t, (abv.get(t) || 0) + 1); } }
+  const stats = {}; for (const k of ORDER) stats[k] = { n: 0, s24: 0, up: 0, a24: 0, a1: 0 };
+  let from = Infinity, to = 0;
+  for (const c of S.coins) {
+    if (!c.hv) continue;
+    const n = c.T.length, { tr, sx, fl } = c.hv, sh = new Uint8Array(n).fill(6);
+    for (let i = 168; i < n; i++) {
+      const t = c.T[i], k = cnt.get(t) || 0;
+      const tide = k >= 10 ? (abv.get(t) || 0) / k : null;
+      const cl = classify([tr[i], sx[i], fl[i] === 2 ? null : fl[i], null, tideVote(tide), sentVote(sentAt(t))]);
+      sh[i] = ST_CODE[cl.st];
+      if (i + 24 <= n - 2 && stats[cl.st]) {
+        const f = c.C[i + 24] / c.C[i] - 1, f1 = c.C[i + 1] / c.C[i] - 1, s = stats[cl.st];
+        s.n++; s.s24 += f; if (f > 0) s.up++; s.a24 += Math.abs(f); s.a1 += Math.abs(f1);
+        if (t < from) from = t; if (t > to) to = t;
+      }
+    }
+    c.sh = sh;
+  }
+  S.hist = { stats, from, to };
+}
+function computeLive() {
+  let cnt = 0, abv = 0;
+  for (const c of S.coins) { c.mx = metricsAt(c, c.C.length - 1); if (c.mx) { cnt++; if (c.mx.above) abv++; } }
+  S.tide = cnt >= 10 ? abv / cnt : null;
+  const sent = S.fng && S.fng.length ? S.fng[S.fng.length - 1].v : null;
+  for (const c of S.coins) {
+    const mx = c.mx;
+    c.votes = [mx ? mx.trend : null, mx ? mx.stretch : null, mx ? mx.flow : null, c.fut ? fundVote(c.fut.fr) : null, tideVote(S.tide), sentVote(sent)];
+    const prev = c.cl ? c.cl.st : null;
+    c.cl = classify(c.votes);
+    c.changed = prev !== null && prev !== c.cl.st;
+  }
+}
+function buildAll() {
+  for (const c of S.coins) {
+    if (!c.C.length) continue;
+    if (isFinite(c.last) && c.last > 0) c.C[c.C.length - 1] = c.last;
+    prep(c);
+    if (c.dirty) { histCoin(c); c.dirty = false; S.histDirty = true; }
+  }
+  computeLive();
+  if (S.histDirty) { buildHistory(); S.histDirty = false; }
+}
+
+/* ---------- data access ---------- */
+async function getJSON(key, path) {
+  const src = SRC[key], st = S.src[key];
+  if (Date.now() < st.pausedUntil) throw new Error('paused');
+  if (S.demo) { const d = Demo.fetch(key, path); st.status = 'ok'; st.last = Date.now(); st.err = ''; return d; }
+  let lastErr = null;
+  for (let k = 0; k < src.hosts.length; k++) {
+    const hi = (st.host + k) % src.hosts.length;
+    const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 15000);
+    try {
+      const r = await fetch(src.hosts[hi] + path, { signal: ctl.signal, cache: 'no-store' });
+      clearTimeout(to);
+      if (r.status === 429 || r.status === 418) {
+        const ra = parseInt(r.headers.get('Retry-After') || '', 10);
+        st.pausedUntil = Date.now() + 1000 * (ra > 0 ? ra : (r.status === 418 ? 600 : 120));
+        st.status = 'limit'; st.err = 'Request limit reached, waiting before retrying';
+        const e = new Error(st.err); e.fatal = true; throw e;
+      }
+      if (r.status === 451 || r.status === 403) throw new Error('Not available from this network or country (HTTP ' + r.status + ')');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      st.host = hi; st.status = 'ok'; st.last = Date.now(); st.err = '';
+      return j;
+    } catch (e) { clearTimeout(to); lastErr = e; if (e.fatal) break; }
+  }
+  if (st.status !== 'limit') { st.status = 'error'; st.err = lastErr && lastErr.name === 'AbortError' ? 'Timed out' : (lastErr && lastErr.message) || 'Unreachable'; }
+  throw lastErr || new Error('Unreachable');
+}
+async function pool(items, size, fn) {
+  let i = 0; const run = async () => { while (i < items.length) { const it = items[i++]; await fn(it); } };
+  await Promise.all(Array.from({ length: Math.min(size, items.length) }, run));
+}
+async function pickUniverse() {
+  const all = await getJSON('spot', '/api/v3/ticker/24hr');
+  if (!Array.isArray(all)) throw new Error('Unexpected answer from Binance');
+  const map = new Map();
+  for (const t of all) if (typeof t.symbol === 'string' && t.symbol.endsWith('USDT') && +t.quoteVolume > 0 && +t.count > 0 && +t.lastPrice > 0) map.set(t.symbol.slice(0, -4), t);
+  const names = new Map(CANDIDATES), chosen = [];
+  for (const [base] of CANDIDATES) { if (chosen.length >= CONFIG.universeSize) break; if (map.has(base)) chosen.push(base); }
+  if (chosen.length < CONFIG.universeSize) {
+    const rest = [...map.entries()].filter(([b]) => !chosen.includes(b) && !NOT_COINS.has(b)).sort((a, b) => +b[1].quoteVolume - +a[1].quoteVolume);
+    for (const [b] of rest) { if (chosen.length >= CONFIG.universeSize) break; chosen.push(b); }
+  }
+  if (chosen.length < 5) throw new Error('Binance returned too few tradable coins');
+  S.coins = chosen.map(base => ({ base, sym: base + 'USDT', name: names.get(base) || base, T: [], C: [], Q: [], B: [], last: NaN, chg: NaN, qv: 0, fut: null, venues: null, gap: NaN, dirty: true }));
+  applyTickers(chosen.map(b => map.get(b)));
+}
+function applyTickers(list) {
+  if (!Array.isArray(list)) return;
+  const by = new Map(S.coins.map(c => [c.sym, c]));
+  for (const t of list) { const c = t && by.get(t.symbol); if (!c) continue; const p = +t.lastPrice; if (p > 0) c.last = p; c.chg = +t.priceChangePercent; c.qv = +t.quoteVolume || 0; }
+}
+async function loadAllKlines() {
+  let done = 0; const bad = [];
+  await pool(S.coins.slice(), 6, async c => {
+    try { mergeKlines(c, await getJSON('spot', '/api/v3/klines?symbol=' + c.sym + '&interval=1h&limit=' + CONFIG.klineLimit)); }
+    catch (e) { bad.push(c); if (e && e.fatal) throw e; }
+    done++; $('loadTxt').textContent = 'Loading 30 days of hourly history: ' + done + ' of ' + S.coins.length + ' coins.';
+  });
+  S.dropped = bad.map(c => c.base);
+  S.coins = S.coins.filter(c => c.C.length >= 30);
+  if (S.coins.length < 5) throw new Error('Price history did not load');
+}
+async function refreshTickers() {
+  const syms = encodeURIComponent(JSON.stringify(S.coins.map(c => c.sym)));
+  applyTickers(await getJSON('spot', '/api/v3/ticker/24hr?symbols=' + syms));
+}
+async function refreshSomeKlines(all) {
+  const n = S.coins.length, k = all ? n : Math.min(CONFIG.klinesPerTick, n), batch = [];
+  for (let i = 0; i < k; i++) batch.push(S.coins[(S.cursor + i) % n]);
+  S.cursor = (S.cursor + k) % n;
+  await pool(batch, 5, async c => { try { mergeKlines(c, await getJSON('spot', '/api/v3/klines?symbol=' + c.sym + '&interval=1h&limit=3')); } catch (e) { /* keep last data */ } });
+}
+async function loadFutures() {
+  S.due.fut = Date.now() + CONFIG.futuresEverySec * 1000;
+  const list = await getJSON('fut', '/fapi/v1/premiumIndex');
+  if (!Array.isArray(list)) return;
+  const map = new Map(list.map(x => [x.symbol, x]));
+  for (const c of S.coins) {
+    const x = map.get(c.base + 'USDT') || map.get('1000' + c.base + 'USDT');
+    const mark = x ? +x.markPrice : NaN, idx = x ? +x.indexPrice : NaN;
+    c.fut = x && isFinite(+x.lastFundingRate) ? { fr: +x.lastFundingRate, basis: idx > 0 ? mark / idx - 1 : NaN } : null;
+  }
+}
+async function loadVenues() {
+  S.due.venues = Date.now() + CONFIG.venuesEverySec * 1000;
+  const snap = new Map(S.coins.map(c => [c.base, c.last]));
+  const [o, b] = await Promise.allSettled([getJSON('okx', '/api/v5/market/tickers?instType=SPOT'), getJSON('bybit', '/v5/market/tickers?category=spot')]);
+  const okx = new Map(), byb = new Map();
+  if (o.status === 'fulfilled' && o.value && Array.isArray(o.value.data)) for (const x of o.value.data) if (typeof x.instId === 'string' && x.instId.endsWith('-USDT')) okx.set(x.instId.slice(0, -5), +x.last);
+  if (b.status === 'fulfilled' && b.value && b.value.result && Array.isArray(b.value.result.list)) for (const x of b.value.result.list) if (typeof x.symbol === 'string' && x.symbol.endsWith('USDT')) byb.set(x.symbol.slice(0, -4), +x.lastPrice);
+  S.venueAt = Date.now();
+  for (const c of S.coins) {
+    const v = [['Binance', snap.get(c.base)], ['OKX', okx.get(c.base)], ['Bybit', byb.get(c.base)]].filter(x => isFinite(x[1]) && x[1] > 0);
+    c.venues = v;
+    if (v.length >= 2) { const px = v.map(x => x[1]).sort((a, z) => a - z); const mid = px[Math.floor(px.length / 2)]; c.gap = (px[px.length - 1] - px[0]) / mid * 1e4; } else c.gap = NaN;
+  }
+}
+async function loadSentiment() {
+  S.due.fng = Date.now() + CONFIG.sentimentEverySec * 1000;
+  const j = await getJSON('fng', '/fng/?limit=60');
+  if (!j || !Array.isArray(j.data)) return;
+  const f = j.data.map(d => ({ t: (+d.timestamp) * 1000, v: +d.value, label: String(d.value_classification || '') })).filter(d => isFinite(d.t) && isFinite(d.v)).sort((a, b) => a.t - b.t);
+  if (f.length) { S.fng = f; S.histDirty = true; }
+}
+
+/* ---------- formatting ---------- */
+const MINUS = '−';
+function fmtPx(p) {
+  if (!isFinite(p)) return '–';
+  const a = Math.abs(p);
+  if (a >= 1000) return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (a >= 1) return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: a >= 100 ? 2 : 4 });
+  if (a >= 1e-6) return p.toPrecision(4);
+  return p.toFixed(10);
+}
+const fmtPct = (x, d = 2) => !isFinite(x) ? '–' : (x > 0 ? '+' : x < 0 ? MINUS : '') + Math.abs(x).toFixed(d) + '%';
+const fmtInt = n => n.toLocaleString('en-US');
+function ago(ts) { if (!ts) return 'not yet'; const s = Math.max(0, Math.round((Date.now() - ts) / 1000)); return s < 90 ? s + ' s ago' : Math.round(s / 60) + ' min ago'; }
+function voteHTML(v, name) {
+  const cls = v == null ? 'na' : v > 0 ? 'up' : v < 0 ? 'dn' : 'flat';
+  const g = v == null ? '' : v > 0 ? '▲' : v < 0 ? '▼' : '–';
+  const word = v == null ? 'no data' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
+  return '<span class="v ' + cls + '" title="' + name + ': ' + word + '" aria-label="' + name + ' ' + word + '">' + g + '</span>';
+}
+const pillHTML = st => '<span class="pill st-' + st + '"><i>' + ST[st].g + '</i>' + ST[st].label + '</span>';
+
+/* ---------- rendering ---------- */
+function renderClock() {
+  const dot = $('liveDot'), txt = $('liveTxt'), ct = $('clockTxt'), mt = $('meter');
+  const spot = S.src.spot;
+  let cls = 'wait', label = 'Starting';
+  if (S.demo) { cls = 'demo'; label = 'Simulated'; }
+  else if (!S.started) { cls = 'wait'; label = 'Starting'; }
+  else if (S.paused) { cls = 'wait'; label = 'Paused'; }
+  else if (spot.status === 'ok') { cls = 'ok'; label = 'Live'; }
+  else { cls = 'err'; label = spot.status === 'limit' ? 'Waiting' : 'Connection lost'; }
+  dot.className = 'dot ' + cls; txt.textContent = label;
+  if (!S.started) { mt.style.width = '0'; return; }
+  const left = Math.max(0, Math.ceil((S.nextAt - Date.now()) / 1000));
+  if (S.paused) ct.textContent = 'Updates paused. Prices from ' + ago(S.lastTick) + '.';
+  else if (S.busy) ct.textContent = 'Updating now';
+  else if (spot.status !== 'ok' && !S.demo) ct.textContent = (spot.err || 'No answer') + '. Retrying in ' + left + ' s.';
+  else ct.textContent = 'Next update in ' + left + ' s';
+  mt.style.width = S.paused ? '0' : Math.min(100, 100 * (1 - left / CONFIG.refreshSeconds)) + '%';
+  $('pauseBtn').textContent = S.paused ? 'Resume' : 'Pause';
+}
+function renderSources() {
+  const parts = [];
+  for (const k in SRC) {
+    const st = S.src[k];
+    const cls = st.status === 'ok' ? 'ok' : st.status === 'wait' ? 'wait' : 'err';
+    const tail = st.status === 'ok' ? 'updated ' + ago(st.last) : st.status === 'wait' ? 'waiting' : esc(st.err || 'unavailable');
+    parts.push('<span class="src" title="' + esc(SRC[k].what) + '"><span class="dot ' + cls + '"></span><b>' + esc(SRC[k].label) + '</b><em>' + tail + '</em></span>');
+  }
+  if (S.dropped.length) parts.push('<span class="muted">No history for: ' + esc(S.dropped.join(', ')) + '</span>');
+  $('sources').innerHTML = parts.join('');
+}
+function counts() { const c = { aup: 0, lup: 0, split: 0, quiet: 0, ldn: 0, adn: 0, na: 0 }; for (const x of S.coins) c[x.cl.st]++; return c; }
+function renderOverview() {
+  const c = counts(), n = S.coins.length, up = c.aup + c.lup, dn = c.adn + c.ldn;
+  let lead;
+  if (up > dn * 1.5 && up >= n * 0.4) lead = 'Signals lean up on most coins.';
+  else if (dn > up * 1.5 && dn >= n * 0.4) lead = 'Signals lean down on most coins.';
+  else if (c.split >= n * 0.3) lead = 'Signals disagree with each other on many coins.';
+  else if (c.quiet >= n * 0.5) lead = 'Most signals are flat.';
+  else lead = 'No direction dominates.';
+  $('read').textContent = lead + ' Of ' + n + ' coins, ' + up + ' are aligned or leaning up, ' + dn + ' down, ' + c.split + ' split and ' + c.quiet + ' quiet.';
+  $('stack').innerHTML = ORDER.filter(k => c[k] > 0).map(k => '<span class="bg-' + k + '" style="flex:' + c[k] + ' 1 0" title="' + ST[k].label + ': ' + c[k] + '">' + (c[k] / n >= 0.06 ? c[k] : '') + '</span>').join('');
+  $('legend').innerHTML = ORDER.map(k => '<span><i class="sw bg-' + k + '"></i>' + ST[k].label + ' ' + c[k] + '</span>').join('');
+  const gaps = S.coins.map(x => x.gap).filter(isFinite), flagged = gaps.filter(g => g > CONFIG.gapFlagBps).length;
+  const withVotes = S.coins.filter(x => x.cl.p + x.cl.m > 0);
+  const disc = withVotes.length ? withVotes.reduce((s, x) => s + x.cl.D, 0) / withVotes.length : NaN;
+  const sent = S.fng && S.fng.length ? S.fng[S.fng.length - 1] : null;
+  const tile = (label, val, sub) => '<div class="kpi"><span class="eyebrow">' + label + '</span><b>' + val + '</b><small>' + sub + '</small></div>';
+  $('kpis').innerHTML =
+    tile('Market tide', S.tide == null ? '–' : Math.round(S.tide * 100) + '%', 'of coins above their 7-day average') +
+    tile('Fear &amp; Greed', sent ? sent.v + ' / 100' : '–', sent ? esc(sent.label) : 'index not loaded') +
+    tile('Average discord', isFinite(disc) ? Math.round(disc) + ' / 100' : '–', '0 is full agreement, 100 an even split') +
+    tile('Median exchange gap', gaps.length ? quantile(gaps, 0.5).toFixed(1) + ' bp' : '–', gaps.length ? flagged + ' of ' + gaps.length + ' coins above ' + CONFIG.gapFlagBps + ' bp' : 'cross-check not loaded');
+}
+const COLS = [
+  ['vol', '#', 'n', 'Rank by 24-hour trading volume on Binance'], ['coin', 'Coin', '', ''], ['px', 'Price (USDT)', 'n', ''], ['chg', '24 h', 'n', ''],
+  [null, 'T X F P M S', '', 'Votes of the six signal families'], ['net', 'Net', '', 'Up votes minus down votes, −100 to +100'],
+  ['disc', 'Discord', 'n', '0 = no disagreement, 100 = even split'], ['state', 'State', '', ''], ['gap', 'Exch. gap', 'n', 'Highest minus lowest price across exchanges, in basis points']
+];
+function renderHead() {
+  $('thead').innerHTML = COLS.map(([k, label, cls, tip]) => {
+    const on = k && S.sort.key === k;
+    const inner = k ? '<button type="button" data-sort="' + k + '">' + label + (on ? (S.sort.dir < 0 ? ' ↓' : ' ↑') : '') + '</button>' : label;
+    return '<th class="' + cls + '"' + (tip ? ' title="' + esc(tip) + '"' : '') + (on ? ' aria-sort="' + (S.sort.dir < 0 ? 'descending' : 'ascending') + '"' : '') + '>' + inner + '</th>';
+  }).join('');
+}
+function sortVal(c, k) {
+  switch (k) {
+    case 'vol': return c.qv; case 'coin': return c.base; case 'px': return c.last; case 'chg': return c.chg;
+    case 'net': return c.cl.C; case 'disc': return c.cl.D; case 'state': return -ST_CODE[c.cl.st]; case 'gap': return isFinite(c.gap) ? c.gap : -1;
+  }
+  return 0;
+}
+function renderTable() {
+  renderHead();
+  const cnt = counts();
+  $('filters').innerHTML = [['all', 'All ' + S.coins.length]].concat(ORDER.map(k => [k, ST[k].label + ' ' + cnt[k]]))
+    .map(([k, l]) => '<button type="button" class="fchip" data-f="' + k + '" aria-pressed="' + (S.filter === k) + '">' + l + '</button>').join('');
+  const rank = new Map(S.coins.slice().sort((a, b) => b.qv - a.qv).map((c, i) => [c.base, i + 1]));
+  const q = S.q.trim().toLowerCase();
+  let list = S.coins.filter(c => (S.filter === 'all' || c.cl.st === S.filter) && (!q || c.base.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)));
+  const { key, dir } = S.sort;
+  list.sort((a, b) => { const x = sortVal(a, key), y = sortVal(b, key); if (typeof x === 'string') return dir * x.localeCompare(y); return dir * ((isFinite(x) ? x : -Infinity) - (isFinite(y) ? y : -Infinity)) || rank.get(a.base) - rank.get(b.base); });
+  const active = document.activeElement, keep = active && active.dataset ? active.dataset.sym : null;
+  $('rows').innerHTML = list.map(c => {
+    const cl = c.cl, w = Math.min(50, Math.abs(cl.C) / 2);
+    const bar = '<span class="bar"><i style="' + (cl.C >= 0 ? 'left:50%' : 'right:50%') + ';width:' + w + '%;background:var(' + (cl.C >= 0 ? '--up' : '--dn') + ')"></i></span>';
+    const gap = isFinite(c.gap) ? (c.gap > CONFIG.gapFlagBps ? '<span class="flag">' + c.gap.toFixed(1) + ' bp</span>' : c.gap.toFixed(1) + ' bp') : '–';
+    return '<tr tabindex="0" data-sym="' + esc(c.base) + '" aria-selected="' + (S.sel === c.base) + '">' +
+      '<td class="n muted">' + rank.get(c.base) + '</td>' +
+      '<td><span class="coin"><b>' + esc(c.base) + '</b><small>' + esc(c.name) + '</small></span></td>' +
+      '<td class="n">' + fmtPx(c.last) + '</td><td class="n">' + fmtPct(c.chg) + '</td>' +
+      '<td><span class="votes">' + c.votes.map((v, i) => voteHTML(v, FAM[i])).join('') + '</span></td>' +
+      '<td><span class="net">' + bar + '<span class="num">' + (cl.C > 0 ? '+' : cl.C < 0 ? MINUS : '') + Math.abs(cl.C) + '</span></span></td>' +
+      '<td class="n">' + cl.D + '</td>' +
+      '<td>' + pillHTML(cl.st) + (c.changed ? '<span class="changed" title="State changed at the last update"></span>' : '') + '</td>' +
+      '<td class="n">' + gap + '</td></tr>';
+  }).join('');
+  $('noRows').hidden = list.length > 0;
+  if (keep) { const el = $('rows').querySelector('tr[data-sym="' + keep + '"]'); if (el) el.focus({ preventScroll: true }); }
+}
+function chartSVG(c) {
+  const n = c.C.length, k = Math.min(168, n), xs = c.C.slice(n - k), last = xs[k - 1];
+  const W = 480, Hh = 220, L = 60, R = 80, T = 12, Bm = 26, pw = W - L - R, ph = Hh - T - Bm;
+  let lo = Math.min(...xs), hi = Math.max(...xs);
+  if (c.rng) { lo = Math.min(lo, last * Math.exp(-c.rng.h24)); hi = Math.max(hi, last * Math.exp(c.rng.h24)); }
+  const pad = (hi - lo) * 0.06 || last * 0.01; lo -= pad; hi += pad;
+  const X = i => L + pw * i / Math.max(1, k - 1), Y = v => T + ph * (1 - (v - lo) / (hi - lo));
+  let d = ''; for (let i = 0; i < k; i++) d += (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(xs[i]).toFixed(1);
+  const area = d + 'L' + X(k - 1).toFixed(1) + ' ' + (T + ph) + 'L' + L + ' ' + (T + ph) + 'Z';
+  let g = '';
+  for (const f of [0, 0.5, 1]) { const v = lo + (hi - lo) * (0.08 + 0.84 * f), y = Y(v); g += '<line class="grid" x1="' + L + '" x2="' + (L + pw) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '"/><text class="axis" text-anchor="end" x="' + (L - 6) + '" y="' + (y + 4).toFixed(1) + '">' + fmtPx(v) + '</text>'; }
+  let band = '';
+  if (c.rng) {
+    const bx = L + pw;
+    const one = (x, q, lab) => { const y1 = Y(last * Math.exp(q)), y2 = Y(last * Math.exp(-q)); return '<rect class="band" x="' + (x - 8) + '" y="' + y1.toFixed(1) + '" width="16" height="' + Math.max(2, y2 - y1).toFixed(1) + '" rx="3"/><text class="axis" text-anchor="middle" x="' + x + '" y="' + (Hh - 7) + '">' + lab + '</text>'; };
+    band = one(bx + 26, c.rng.h1, '1 h') + one(bx + 60, c.rng.h24, '24 h');
+  }
+  return '<svg class="chart" viewBox="0 0 ' + W + ' ' + Hh + '" role="img" aria-label="' + esc(c.base) + ' price over the last ' + Math.round(k / 24) + ' days with typical ranges for the next hour and day" data-k="' + k + '" data-l="' + L + '" data-pw="' + pw + '" data-w="' + W + '">' +
+    g + '<path class="area" d="' + area + '"/><path class="line" d="' + d + '"/>' + band +
+    '<line class="cross" id="cross" x1="0" x2="0" y1="' + T + '" y2="' + (T + ph) + '" visibility="hidden"/>' +
+    '<circle class="end" cx="' + X(k - 1).toFixed(1) + '" cy="' + Y(last).toFixed(1) + '" r="4"/>' +
+    '<text class="axis" x="' + L + '" y="' + (Hh - 7) + '">' + Math.round(k / 24) + ' days ago</text><text class="axis" text-anchor="end" x="' + (L + pw) + '" y="' + (Hh - 7) + '">now</text></svg>';
+}
+function timelineSVG(c) {
+  if (!c.sh) return '';
+  const n = c.sh.length, k = Math.min(168, n - 168); if (k <= 0) return '';
+  let out = '', start = n - k, run = start;
+  for (let i = start + 1; i <= n; i++) if (i === n || c.sh[i] !== c.sh[run]) { out += '<rect class="f-' + CODE_ST[c.sh[run]] + '" x="' + (run - start) + '" y="0" width="' + (i - run) + '" height="10"/>'; run = i; }
+  return '<svg class="tl" viewBox="0 0 ' + k + ' 10" preserveAspectRatio="none" role="img" aria-label="Agreement state over the last ' + Math.round(k / 24) + ' days">' + out + '</svg>' +
+    '<div class="tlcap"><span>' + Math.round(k / 24) + ' days ago</span><span>now</span></div>';
+}
+function renderDetail() {
+  const c = S.coins.find(x => x.base === S.sel) || S.coins[0];
+  if (!c) return; S.sel = c.base;
+  const mx = c.mx, sent = S.fng && S.fng.length ? S.fng[S.fng.length - 1] : null;
+  const dir = v => v == null ? 'no data' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat';
+  const d = [];
+  d.push(mx ? '24 h ' + fmtPct(mx.r24 * 100) + ' · 3 d ' + fmtPct(mx.r72 * 100) + ' · 7 d ' + fmtPct(mx.r168 * 100) + ' · ' + (mx.above ? 'above' : 'below') + ' its 7-day average' : 'Needs 7 days of history.');
+  d.push(mx ? Math.abs(mx.z).toFixed(1) + ' standard deviations ' + (mx.z >= 0 ? 'above' : 'below') + ' its 7-day average. Beyond 2 counts as stretched.' : 'Needs 7 days of history.');
+  d.push(mx && isFinite(mx.pct) ? 'Buyers took ' + (mx.tb * 100).toFixed(1) + '% of 24-hour volume, higher than ' + Math.round(mx.pct * 100) + '% of the last 20 days.' : 'Not enough volume history.');
+  d.push(c.fut ? 'Funding ' + fmtPct(c.fut.fr * 100, 4) + ' per period' + (isFinite(c.fut.basis) ? ', futures ' + fmtPct(c.fut.basis * 100, 3) + ' against the spot index.' : '.') : 'No futures data for this coin.');
+  d.push(S.tide == null ? 'Not enough coins with history.' : Math.round(S.tide * 100) + '% of tracked coins are above their 7-day average. Same vote for every coin.');
+  d.push(sent ? 'Fear & Greed Index ' + sent.v + ' (' + sent.label + '). Same vote for every coin.' : 'Index not loaded.');
+  const sig = c.votes.map((v, i) => '<div>' + voteHTML(v, FAM[i]) + '<strong>' + FAM[i] + ': ' + dir(v) + '</strong><span class="d">' + esc(d[i]) + '</span></div>').join('');
+  let rng = '<p class="note">Typical ranges need more history.</p>';
+  if (c.rng) {
+    const row = (lab, q) => '<dt>' + lab + '</dt><dd>±' + (100 * (Math.exp(q) - 1)).toFixed(2) + '% · ' + fmtPx(c.last * Math.exp(-q)) + ' to ' + fmtPx(c.last * Math.exp(q)) + '</dd>';
+    rng = '<dl class="rng">' + row('Next hour', c.rng.h1) + row('Next 24 hours', c.rng.h24) + '</dl>' +
+      '<p class="note">Two in three moves of that length stayed inside these ranges over the last 30 days. The two bars at the right of the chart show them. One in twenty went beyond ±' + (100 * (Math.exp(c.rng.h1x) - 1)).toFixed(1) + '% in an hour and ±' + (100 * (Math.exp(c.rng.h24x) - 1)).toFixed(1) + '% in a day. This describes size, not direction.</p>';
+  }
+  let ven = '<p class="note">Exchange cross-check not loaded.</p>';
+  if (c.venues && c.venues.length >= 2) {
+    const ref = c.venues[0][1];
+    ven = '<table class="venues"><thead><tr><th>Exchange</th><th class="n">Price</th><th class="n">vs ' + esc(c.venues[0][0]) + '</th></tr></thead><tbody>' +
+      c.venues.map(([nm, px], i) => '<tr><td>' + esc(nm) + '</td><td class="n">' + fmtPx(px) + '</td><td class="n">' + (i ? fmtPct((px / ref - 1) * 1e4, 1).replace('%', ' bp') : '–') + '</td></tr>').join('') +
+      '</tbody></table><p class="note">Prices taken within about two seconds of each other, ' + ago(S.venueAt) + '. Gap ' + (isFinite(c.gap) ? c.gap.toFixed(1) + ' bp' : '–') + '.</p>';
+  } else if (c.venues) ven = '<p class="note">This coin was found on one exchange only, so there is nothing to compare.</p>';
+  const sec = (title, body) => '<div class="ds"><span class="eyebrow">' + title + '</span>' + body + '</div>';
+  $('detail').innerHTML =
+    '<div class="ds"><div class="dhead"><div class="t"><b>' + esc(c.base) + '</b><span class="muted">' + esc(c.name) + '</span></div><div>' + pillHTML(c.cl.st) + '</div></div>' +
+    '<div class="dhead"><span class="px">' + fmtPx(c.last) + ' <span class="muted" style="font-size:13px">USDT</span></span><span class="mono">' + fmtPct(c.chg) + ' in 24 h</span></div></div>' +
+    '<div class="chartwrap">' + chartSVG(c) + '<div class="tip" id="tip" hidden></div></div>' +
+    sec('Typical size of the next move', rng) +
+    sec('Votes: ' + c.cl.p + ' up, ' + c.cl.m + ' down, ' + c.cl.z + ' flat · net ' + (c.cl.C > 0 ? '+' : c.cl.C < 0 ? MINUS : '') + Math.abs(c.cl.C) + ' · discord ' + c.cl.D, '<div class="sig">' + sig + '</div>') +
+    sec('Agreement state, hour by hour', timelineSVG(c)) +
+    sec('Price by exchange', ven);
+}
+function renderHistory() {
+  const h = S.hist; if (!h) return;
+  const st = h.stats, tot = ORDER.reduce((s, k) => s + st[k].n, 0);
+  const maxA = Math.max(1e-9, ...ORDER.map(k => st[k].n ? st[k].a24 / st[k].n : 0));
+  $('histTable').innerHTML = '<thead><tr><th>State</th><th class="n">Coin-hours</th><th class="n">Next 24 h</th><th class="n">Rose</th><th>Size of 24 h move</th><th class="n">1 h move</th></tr></thead><tbody>' +
+    ORDER.map(k => { const s = st[k]; if (!s.n) return '<tr><td>' + pillHTML(k) + '</td><td class="n">0</td><td class="n">–</td><td class="n">–</td><td>–</td><td class="n">–</td></tr>';
+      const a = s.a24 / s.n;
+      return '<tr><td>' + pillHTML(k) + '</td><td class="n">' + fmtInt(s.n) + '</td><td class="n">' + fmtPct(100 * s.s24 / s.n) + '</td><td class="n">' + Math.round(100 * s.up / s.n) + '%</td>' +
+        '<td class="n" style="text-align:left"><span class="hbar" style="width:' + Math.round(64 * a / maxA) + 'px"></span>' + (100 * a).toFixed(2) + '%</td><td class="n">' + (100 * s.a1 / s.n).toFixed(2) + '%</td></tr>'; }).join('') + '</tbody>';
+  const days = isFinite(h.from) ? Math.max(1, Math.round((h.to - h.from) / 86400000)) : 0;
+  $('histNote').innerHTML =
+    '<li>Next 24 h is the average change. Rose is the share of cases where the price was higher a day later. Move sizes are averages ignoring direction.</li><li>' + fmtInt(tot) + ' coin-hours over about ' + days + ' days. The windows overlap and the coins move together, so the real amount of independent evidence is far smaller than the count suggests.</li>' +
+    '<li>The rebuilt states use five families. Futures positioning is left out because its history is not loaded.</li>' +
+    '<li>A few weeks covers one market mood. Treat differences between rows as a question to keep testing, not as a result.</li>';
+}
+function renderDonate() {
+  const a = (CONFIG.donation.bitcoinAddress || '').trim(), l = (CONFIG.donation.lightningAddress || '').trim();
+  const box = $('donate');
+  if (!a && !l) {
+    box.innerHTML = '<div class="txt"><h2>Support this board</h2><p class="muted">No donation address has been added yet. The owner can paste a Bitcoin receiving address into the settings block at the top of this file\'s script, and it will appear here with a QR code.</p></div>';
+    return;
+  }
+  box.innerHTML = '<div class="txt"><h2>Support this board</h2><p>The board is free to use. If it helps you, you can send a donation in Bitcoin.</p>' +
+    (a ? '<span class="eyebrow">Bitcoin address</span><div class="addr" id="btcAddr">' + esc(a) + '</div><div><button class="btn" type="button" data-copy="btcAddr">Copy address</button></div>' : '') +
+    (l ? '<span class="eyebrow">Lightning address</span><div class="addr" id="lnAddr">' + esc(l) + '</div><div><button class="btn" type="button" data-copy="lnAddr">Copy Lightning address</button></div>' : '') +
+    '<p class="note">Check the first and last characters after pasting. Bitcoin payments cannot be reversed.</p></div>' + (a ? '<div class="qr" id="qr" aria-label="QR code for the Bitcoin address"></div>' : '');
+  if (a && window.QRCode) { try { new window.QRCode($('qr'), { text: 'bitcoin:' + a, width: 136, height: 136, colorDark: '#000000', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M }); } catch (e) { $('qr').hidden = true; } }
+  else if (a) $('qr').hidden = true;
+}
+function renderAll() { renderClock(); renderSources(); renderOverview(); renderTable(); renderDetail(); renderHistory(); }
+
+/* ---------- loop ---------- */
+async function tick() {
+  if (S.busy || !S.started) return;
+  S.busy = true; renderClock();
+  try {
+    const now = Date.now(), hr = Math.floor(now / HOUR), newHour = hr !== S.hourSeen;
+    const venuesDue = now >= S.due.venues;
+    const jobs = [refreshTickers()];
+    await Promise.allSettled(jobs);
+    const more = [refreshSomeKlines(newHour)];
+    if (venuesDue) more.push(loadVenues());
+    if (now >= S.due.fut) more.push(loadFutures());
+    if (now >= S.due.fng) more.push(loadSentiment());
+    await Promise.allSettled(more);
+    if (S.src.spot.status === 'ok') { S.hourSeen = hr; S.lastTick = Date.now(); }
+    buildAll(); renderAll();
+  } catch (e) { /* keep showing the last good data */ }
+  finally { S.busy = false; S.nextAt = Date.now() + CONFIG.refreshSeconds * 1000; renderClock(); renderSources(); }
+}
+async function start() {
+  $('blocked').hidden = true; $('app').hidden = true; $('loading').hidden = false; $('demoBanner').hidden = !S.demo;
+  $('loadTxt').textContent = 'Choosing the 50 coins.';
+  S.started = false; S.coins = []; S.fng = null; S.hist = null; S.histDirty = true; S.dropped = [];
+  for (const k in S.src) Object.assign(S.src[k], { status: 'wait', last: 0, err: '', pausedUntil: 0 });
+  renderClock();
+  try {
+    await pickUniverse();
+    await loadAllKlines();
+    await Promise.allSettled([loadFutures(), loadSentiment()]);
+    await Promise.allSettled([refreshTickers().then(loadVenues)]);
+    buildAll();
+  } catch (e) {
+    $('loading').hidden = true; $('blocked').hidden = false;
+    $('blockedWhy').textContent = 'Reason reported by the browser: ' + ((e && e.name === 'AbortError') ? 'the request timed out' : (e && e.message) || 'the connection was blocked') + '.';
+    renderClock(); return;
+  }
+  try { const s = localStorage.getItem('ccb.sel'); if (s && S.coins.some(c => c.base === s)) S.sel = s; } catch (e) { /* storage unavailable */ }
+  if (!S.sel || !S.coins.some(c => c.base === S.sel)) S.sel = S.coins[0].base;
+  S.started = true; S.hourSeen = Math.floor(Date.now() / HOUR); S.lastTick = Date.now(); S.nextAt = Date.now() + CONFIG.refreshSeconds * 1000;
+  $('loading').hidden = true; $('app').hidden = false;
+  renderDonate(); renderAll();
+}
+
+/* ---------- simulated data, used only when the viewer asks for it ---------- */
+const Demo = (() => {
+  let D = null;
+  const rng = seed => () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  let r = rng(20261008);
+  const gauss = () => { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); };
+  function build() {
+    const N = 720, tEnd = Math.floor(Date.now() / HOUR) * HOUR, mk = new Float64Array(N); let drift = 0;
+    for (let i = 0; i < N; i++) { if (i % 96 === 0) drift = (r() - 0.5) * 0.0018; mk[i] = drift + 0.0042 * gauss(); }
+    const coins = CANDIDATES.slice(0, 56).map(([base], k) => {
+      const beta = 0.7 + r() * 1.1, iv = 0.003 + r() * 0.006, baseQ = 9e7 / Math.pow(k + 1, 0.9);
+      let px = Math.pow(10, -2 + 4.6 * r()), own = 0; const rows = [];
+      for (let i = 0; i < N; i++) {
+        if (i % 120 === 0) own = (r() - 0.5) * 0.0022;
+        const ret = beta * mk[i] + own + iv * gauss(), o = px; px *= Math.exp(ret);
+        const q = baseQ * Math.exp(0.5 * gauss()) * (1 + 40 * Math.abs(ret));
+        const share = Math.min(0.7, Math.max(0.3, 0.5 + 0.06 * Math.tanh(ret / 0.006) + 0.025 * gauss() + own * 12));
+        rows.push([tEnd - (N - 1 - i) * HOUR, String(o), String(Math.max(o, px) * 1.001), String(Math.min(o, px) * 0.999), String(px), String(q / px), tEnd - (N - 1 - i) * HOUR + HOUR - 1, String(q), 1000, String(q / px * share), String(q * share), '0']);
+      }
+      const u = r();
+      return { base, rows, fr: u > 0.9 ? 0.0006 + r() * 0.0004 : u < 0.1 ? -0.0002 - r() * 0.0003 : 0.0001 + 0.00005 * gauss(), odd: r() > 0.94, noOkx: r() > 0.93, noBybit: r() > 0.95, noFut: r() > 0.95 };
+    });
+    const fng = []; let v = 46; const day = 86400000, d0 = Math.floor(Date.now() / day) * day;
+    for (let i = 59; i >= 0; i--) { v = Math.min(90, Math.max(10, v + 6 * gauss() - 0.08 * (v - 45))); fng.push({ value: String(Math.round(v)), value_classification: v <= 25 ? 'Extreme Fear' : v < 45 ? 'Fear' : v <= 55 ? 'Neutral' : v < 75 ? 'Greed' : 'Extreme Greed', timestamp: String((d0 - i * day) / 1000) }); }
+    D = { coins, by: new Map(coins.map(c => [c.base + 'USDT', c])), fng: fng.reverse() };
+  }
+  const lastPx = c => +c.rows[c.rows.length - 1][4];
+  function ticker(c, move) {
+    const n = c.rows.length, row = c.rows[n - 1];
+    if (move) row[4] = String(+row[4] * Math.exp(0.0012 * gauss()));
+    let qv = 0; for (let i = n - 24; i < n; i++) qv += +c.rows[i][7];
+    return { symbol: c.base + 'USDT', lastPrice: row[4], priceChangePercent: String(100 * (+row[4] / +c.rows[n - 25][4] - 1)), quoteVolume: String(qv), count: 5000 };
+  }
+  function fetch(key, path) {
+    if (!D) build();
+    const u = new URL('https://x' + path);
+    if (key === 'spot' && u.pathname === '/api/v3/ticker/24hr') {
+      const s = u.searchParams.get('symbols');
+      if (!s) return D.coins.map(c => ticker(c, false)).concat([{ symbol: 'USDCUSDT', lastPrice: '1', priceChangePercent: '0', quoteVolume: '9e9', count: 9 }]);
+      return JSON.parse(s).map(x => D.by.get(x)).filter(Boolean).map(c => ticker(c, true));
+    }
+    if (key === 'spot' && u.pathname === '/api/v3/klines') { const c = D.by.get(u.searchParams.get('symbol')); if (!c) throw new Error('Invalid symbol'); return c.rows.slice(-(+u.searchParams.get('limit') || 500)); }
+    if (key === 'fut') return D.coins.filter(c => !c.noFut).map(c => { const p = lastPx(c), four = ['PEPE', 'SHIB', 'BONK', 'FLOKI'].includes(c.base); return { symbol: (four ? '1000' : '') + c.base + 'USDT', markPrice: String(p * (1 + c.fr * 0.6) * (four ? 1000 : 1)), indexPrice: String(p * (four ? 1000 : 1)), lastFundingRate: String(c.fr) }; });
+    if (key === 'okx') return { code: '0', data: D.coins.filter(c => !c.noOkx).map(c => ({ instId: c.base + '-USDT', last: String(lastPx(c) * (1 + (c.odd ? 0.0028 : 0.0003 * gauss()))) })) };
+    if (key === 'bybit') return { retCode: 0, result: { list: D.coins.filter(c => !c.noBybit).map(c => ({ symbol: c.base + 'USDT', lastPrice: String(lastPx(c) * (1 + 0.0003 * gauss())) })) } };
+    if (key === 'fng') return { data: D.fng };
+    throw new Error('Unknown request');
+  }
+  return { fetch, reset: () => { D = null; r = rng(20261008); } };
+})();
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-sort],[data-f],[data-copy],tr[data-sym]'); if (!t) return;
+  if (t.dataset.sort) { const k = t.dataset.sort; S.sort = S.sort.key === k ? { key: k, dir: -S.sort.dir } : { key: k, dir: k === 'coin' ? 1 : -1 }; renderTable(); }
+  else if (t.dataset.f) { S.filter = t.dataset.f; renderTable(); }
+  else if (t.dataset.copy) {
+    const el = $(t.dataset.copy), done = () => { const o = t.textContent; t.textContent = 'Copied'; setTimeout(() => { t.textContent = o; }, 1600); };
+    const select = () => { const rg = document.createRange(); rg.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); t.textContent = 'Selected. Press Ctrl+C or Cmd+C'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(el.textContent).then(done, select); else select();
+  }
+  else if (t.dataset.sym) selectCoin(t.dataset.sym);
+});
+function selectCoin(sym) {
+  S.sel = sym; try { localStorage.setItem('ccb.sel', sym); } catch (e) { /* storage unavailable */ }
+  renderTable(); renderDetail();
+  if (window.matchMedia('(max-width: 1240px)').matches) $('detail').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
+$('rows').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.dataset && e.target.dataset.sym) { e.preventDefault(); selectCoin(e.target.dataset.sym); } });
+$('q').addEventListener('input', e => { S.q = e.target.value; renderTable(); });
+$('pauseBtn').addEventListener('click', () => { S.paused = !S.paused; if (!S.paused) S.nextAt = Date.now(); renderClock(); });
+$('nowBtn').addEventListener('click', () => { if (S.started) { S.paused = false; tick(); } });
+$('retryBtn').addEventListener('click', () => { S.demo = false; start(); });
+$('demoBtn').addEventListener('click', () => { S.demo = true; Demo.reset(); start(); });
+$('liveBtn').addEventListener('click', () => { S.demo = false; start(); });
+$('detail').addEventListener('pointermove', e => {
+  const svg = e.target.closest('svg.chart'), tip = $('tip'), cross = $('cross'); if (!svg || !tip || !cross) return;
+  const c = S.coins.find(x => x.base === S.sel); if (!c) return;
+  const box = svg.getBoundingClientRect(), k = +svg.dataset.k, L = +svg.dataset.l, pw = +svg.dataset.pw, W = +svg.dataset.w;
+  const vx = (e.clientX - box.left) / box.width * W;
+  if (vx < L || vx > L + pw) { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); return; }
+  const i = Math.round((vx - L) / pw * (k - 1)), n = c.C.length, idx = n - k + i, x = L + pw * i / Math.max(1, k - 1);
+  cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('visibility', 'visible');
+  const when = new Date(c.T[idx]).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  tip.textContent = when + ' · ' + fmtPx(c.C[idx]); tip.hidden = false;
+  tip.style.left = Math.min(Math.max(x / W * 100, 18), 82) + '%';
+});
+$('detail').addEventListener('pointerleave', () => { const tip = $('tip'), cross = $('cross'); if (tip) tip.hidden = true; if (cross) cross.setAttribute('visibility', 'hidden'); });
+setInterval(() => {
+  renderClock();
+  if (S.started && !S.paused && !S.busy && !document.hidden && Date.now() >= S.nextAt) tick();
+}, 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.started && !S.paused && Date.now() >= S.nextAt) tick(); });
+
+window.__ccb = { classify, quantile, tideVote, sentVote, fundVote, state: S };
+if (location.hash === '#demo') S.demo = true;
+start();
+})();
+</script>
+</body>
+</html>
