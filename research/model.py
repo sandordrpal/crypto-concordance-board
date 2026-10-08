@@ -81,6 +81,8 @@ def rsi(c, n=14):
 def build_panel(series):
     base = "btc" if "btc" in series and len(series["btc"][0]) > 2000 else "cm_price"
     px = series[base][0]
+    today = pd.Timestamp.now(tz="UTC").normalize().tz_localize(None)
+    px = px[px.index < today]  # today's candle is still forming
     index = pd.date_range(px.index.min(), px.index.max(), freq="D")
     C = px.reindex(index).ffill(limit=3)
     f = {}
@@ -227,10 +229,10 @@ def xgb_model(prm, n_est=None):
                             n_jobs=4, random_state=0, **({} if n_est else {"early_stopping_rounds": 150}))
 
 
-def fit_xgb(Xtr, ytr, Xva, yva):
+def fit_xgb(Xtr, ytr, Xva, yva, grid=((2, 10), (2, 50), (3, 10), (3, 50), (4, 10), (4, 50))):
     best = None
-    for md in (2, 3, 4):
-        for mcw in (10, 50):
+    for md, mcw in grid:
+        if True:
             prm = {"max_depth": md, "min_child_weight": mcw}
             m = xgb_model(prm).fit(Xtr, ytr, eval_set=[(Xva, yva)], verbose=False)
             e = np.mean((m.predict(Xva, iteration_range=(0, m.best_iteration + 1)) - yva) ** 2)
@@ -325,7 +327,7 @@ def run_target(tname, X, Y, C, results, preds_out, importances):
             r.update(extra)
         res[model] = r
         preds_out[(tname, model)] = pd.Series(np.asarray(p_te), index=idx[te])
-        log(f"[{tname}] {model:8s} val R2oos={r['val']['r2_oos']:+.4f} test R2oos={r['test']['r2_oos']:+.4f} "
+        log(f"[{tname}] {model:12s} val R2oos={r['val']['r2_oos']:+.4f} test R2oos={r['test']['r2_oos']:+.4f} "
             f"hit={r['test']['hit_rate']:.3f} gap={r['overfit_gap']:+.4f} dm_p={r['test']['dm_p']}")
 
     zeros = lambda m: np.zeros(int(m.sum()))
@@ -375,8 +377,33 @@ def run_target(tname, X, Y, C, results, preds_out, importances):
     except Exception:
         log(f"[{tname}] xgboost failed:\n{traceback.format_exc()}")
 
-    # GRU on 30-day sequences of 32 principal components
+    # Fixed-capacity versions: same models with moderate settings and no validation-based shrinkage.
+    # They show how much each model family overfits when it is allowed to learn the training data.
+    for name, maker, prm in (("ridge_fixed", make_ridge, {"alpha": 10.0}),
+                             ("poly2_fixed", make_poly, {"k": 20, "alpha": 100.0})):
+        try:
+            P1 = Prep().fit(Xs.loc[tr]); Ztr, Zva = P1.transform(Xs.loc[tr]), P1.transform(Xs.loc[va])
+            P2 = Prep().fit(Xs.loc[trva]); Zf, Zte = P2.transform(Xs.loc[trva]), P2.transform(Xs.loc[te])
+            prm = dict(prm, k=min(prm.get("k", 1), Ztr.shape[1])) if "k" in prm else prm
+            m1, m2 = maker(prm).fit(Ztr, y[tr]), maker(prm).fit(Zf, y[trva])
+            record(name, m1.predict(Ztr), m1.predict(Zva), m2.predict(Zf), m2.predict(Zte), prm, trva)
+        except Exception:
+            log(f"[{tname}] {name} failed:\n{traceback.format_exc()}")
     try:
+        import xgboost  # noqa: F401
+        prm = {"max_depth": 3, "min_child_weight": 10, "n_estimators": 600}
+        m1 = xgb_model(prm, 600).fit(Xs.loc[tr].values, y[tr])
+        m2 = xgb_model(prm, 600).fit(Xs.loc[trva].values, y[trva])
+        record("xgb_fixed", m1.predict(Xs.loc[tr].values), m1.predict(Xs.loc[va].values),
+               m2.predict(Xs.loc[trva].values), m2.predict(Xs.loc[te].values), prm, trva)
+    except ImportError:
+        pass
+    except Exception:
+        log(f"[{tname}] xgb_fixed failed:\n{traceback.format_exc()}")
+
+    # GRU on 30-day sequences of 32 principal components (tuned = early stopping on validation;
+    # fixed = trained for a set number of epochs, to show what happens without that brake)
+    def run_gru(label, fixed_epochs=None):
         import torch
         torch.set_num_threads(4)
         t0 = time.time()
@@ -398,49 +425,114 @@ def run_target(tname, X, Y, C, results, preds_out, importances):
         sy = y[tr].std()
         Str, Sva = gru_sequences(Zp1, rtr, L), gru_sequences(Zp1, rva, L)
         p_tr, p_va, eps = [], [], []
-        for s in SEEDS:
-            f, ep = gru_train(Str, (y[rtr] / sy).astype(np.float32), Sva, (y[rva] / sy).astype(np.float32), seed=s)
+        for sd in SEEDS:
+            if fixed_epochs:
+                f, ep = gru_train(Str, (y[rtr] / sy).astype(np.float32), epochs=fixed_epochs, seed=sd)
+            else:
+                f, ep = gru_train(Str, (y[rtr] / sy).astype(np.float32), Sva, (y[rva] / sy).astype(np.float32), seed=sd)
             p_tr.append(f(Str) * sy)
             p_va.append(f(Sva) * sy)
             eps.append(ep)
-        n_ep = max(5, int(np.median(eps)))
+        n_ep = fixed_epochs or max(5, int(np.median(eps)))
         Zp2 = prep_seq(trva)
         rf, rte = seq_rows(trva), seq_rows(te)
         sy2 = y[trva].std()
         Sf, Ste = gru_sequences(Zp2, rf, L), gru_sequences(Zp2, rte, L)
         p_f, p_te, seed_test = [], [], []
-        for s in SEEDS:
-            f, _ = gru_train(Sf, (y[rf] / sy2).astype(np.float32), epochs=n_ep, seed=s)
+        for sd in SEEDS:
+            f, _ = gru_train(Sf, (y[rf] / sy2).astype(np.float32), epochs=n_ep, seed=sd)
             p_f.append(f(Sf) * sy2)
             pt = f(Ste) * sy2
             p_te.append(pt)
             seed_test.append(score(y[rte], pt, h)["r2_oos"])
-        record_rows = (np.mean(p_tr, 0), np.mean(p_va, 0), np.mean(p_f, 0), np.mean(p_te, 0))
+        rr = (np.mean(p_tr, 0), np.mean(p_va, 0), np.mean(p_f, 0), np.mean(p_te, 0))
         # score train and refit on the rows the GRU actually used (the first 29 days have no full window)
         tr_g = np.zeros(len(idx), bool); tr_g[rtr] = True
         trva_g = np.zeros(len(idx), bool); trva_g[rf] = True
         r = {"params": {"window_days": L, "pca_components": int(Zp1.shape[1]), "hidden": 32, "dropout": 0.3,
-                        "weight_decay": 1e-3, "epochs_refit": n_ep, "val_best_epochs": eps, "seeds": len(SEEDS)},
-             "train": score(y[tr_g], record_rows[0], h), "val": score(y[va], record_rows[1], h),
-             "refit_in_sample": score(y[trva_g], record_rows[2], h), "test": score(y[te], record_rows[3], h),
+                        "weight_decay": 1e-3, "epochs_refit": n_ep, "val_best_epochs": eps, "seeds": len(SEEDS),
+                        "fixed_epochs": fixed_epochs},
+             "train": score(y[tr_g], rr[0], h), "val": score(y[va], rr[1], h),
+             "refit_in_sample": score(y[trva_g], rr[2], h), "test": score(y[te], rr[3], h),
              "seed_test_r2": seed_test, "seconds": round(time.time() - t0, 1)}
         r["overfit_gap"] = r["refit_in_sample"]["r2_oos"] - r["test"]["r2_oos"]
         r["val_to_test_drop"] = r["val"]["r2_oos"] - r["test"]["r2_oos"]
-        r["test_blocks_r2"] = blocks_r2(idx[te], y[te], record_rows[3])
-        r["test"]["dm_vs_drift_p"] = dm_test(y[te], record_rows[3], h, base=np.full(te.sum(), mu_trva))[1]
-        res["gru"] = r
-        preds_out[(tname, "gru")] = pd.Series(record_rows[3], index=idx[te])
-        log(f"[{tname}] gru      val R2oos={r['val']['r2_oos']:+.4f} test R2oos={r['test']['r2_oos']:+.4f} "
+        r["test_blocks_r2"] = blocks_r2(idx[te], y[te], rr[3])
+        r["test"]["dm_vs_drift_p"] = dm_test(y[te], rr[3], h, base=np.full(te.sum(), mu_trva))[1]
+        res[label] = r
+        preds_out[(tname, label)] = pd.Series(rr[3], index=idx[te])
+        log(f"[{tname}] {label:12s} val R2oos={r['val']['r2_oos']:+.4f} test R2oos={r['test']['r2_oos']:+.4f} "
             f"hit={r['test']['hit_rate']:.3f} gap={r['overfit_gap']:+.4f} seeds={['%+.3f' % v for v in seed_test]}")
-    except ImportError:
-        log(f"[{tname}] gru skipped: PyTorch not installed")
-    except Exception:
-        log(f"[{tname}] gru failed:\n{traceback.format_exc()}")
+
+    for label, fe in (("gru", None), ("gru_fixed", 40)):
+        try:
+            run_gru(label, fe)
+        except ImportError:
+            log(f"[{tname}] {label} skipped: PyTorch not installed")
+            break
+        except Exception:
+            log(f"[{tname}] {label} failed:\n{traceback.format_exc()}")
 
     results[tname] = {"horizon_days": h, "label": TARGET_LABEL[tname], "features": int(Xs.shape[1]),
                       "rows": {"train": int(tr.sum()), "val": int(va.sum()), "train_val": int(trva.sum()), "test": int(te.sum())},
                       "test_period": [str(idx[te].min().date()), str(idx[te].max().date())], "models": res}
     return te
+
+
+def walk_forward(tname, X, Y, step_days=91, wf_start="2020-01-01"):
+    """Expanding-window check: every 91 days, tune on the trailing year, refit on all earlier data
+    (purged by the horizon) and forecast the next 91 days. Covers 2020 onwards."""
+    h = TARGETS[tname]
+    yv = Y[tname].values
+    idx = X.index
+    ok = (Y[tname].notna() & (idx >= START)).values
+    names = ["zero", "mean", "ridge", "poly2", "xgboost"]
+    P = {m: np.full(len(idx), np.nan) for m in names}
+    s0, last, folds = pd.Timestamp(wf_start), idx[ok].max(), 0
+    try:
+        import xgboost  # noqa: F401
+        have_xgb = True
+    except ImportError:
+        have_xgb = False
+    while s0 <= last:
+        s1 = s0 + pd.Timedelta(days=step_days)
+        test = ok & (idx >= s0) & (idx < s1)
+        cut = s0 - pd.Timedelta(days=h + 1)
+        fit = ok & (idx <= cut)
+        ival = fit & (idx > cut - pd.Timedelta(days=365))
+        itr = ok & (idx <= cut - pd.Timedelta(days=365 + h))
+        if test.sum() == 0 or itr.sum() < 500:
+            s0 = s1
+            continue
+        keep = (X.loc[itr].notna().mean() >= 0.6) & (X.loc[itr].std() > 1e-12)
+        Xf = X.loc[:, keep[keep].index]
+        P["zero"][test] = 0.0
+        P["mean"][test] = yv[fit].mean()
+        P1 = Prep().fit(Xf.loc[itr]); Zi, Zv = P1.transform(Xf.loc[itr]), P1.transform(Xf.loc[ival])
+        P2 = Prep().fit(Xf.loc[fit]); Zf, Zt = P2.transform(Xf.loc[fit]), P2.transform(Xf.loc[test])
+        for name, fitter, maker in (("ridge", fit_ridge, make_ridge), ("poly2", fit_poly, make_poly)):
+            prm = fitter(Zi, yv[itr], Zv, yv[ival])
+            P[name][test] = maker(prm).fit(Zf, yv[fit]).predict(Zt)
+        if have_xgb:
+            prm = fit_xgb(Xf.loc[itr].values, yv[itr], Xf.loc[ival].values, yv[ival], grid=((2, 20), (3, 20), (4, 20)))
+            m = xgb_model(prm, max(1, int(prm["n_estimators"] * 1.15))).fit(Xf.loc[fit].values, yv[fit])
+            P["xgboost"][test] = m.predict(Xf.loc[test].values)
+        folds += 1
+        s0 = s1
+    mask = ~np.isnan(P["zero"])
+    out = {"folds": folds, "period": [str(idx[mask].min().date()), str(idx[mask].max().date())], "models": {}}
+    years = idx[mask].year
+    for m in names:
+        if np.isnan(P[m][mask]).all():
+            continue
+        yy, pp = yv[mask], P[m][mask]
+        r = score(yy, pp, h)
+        r["dm_vs_drift_p"] = dm_test(yy, pp, h, base=P["mean"][mask])[1] if m not in ("zero", "mean") else np.nan
+        r["by_year_r2"] = {int(yr): float(1 - ((yy[years == yr] - pp[years == yr]) ** 2).sum() / (yy[years == yr] ** 2).sum())
+                           for yr in sorted(set(years))}
+        out["models"][m] = r
+    log(f"[{tname}] walk-forward {folds} folds: " + ", ".join(f"{m} {v['r2_oos']:+.4f}" for m, v in out["models"].items()))
+    return out
 
 
 def ma_forecasts(C, preds, te_mask):
@@ -479,7 +571,7 @@ def verdict(models):
     """Pick the best model on test that also shows low overfitting risk."""
     rows = []
     for name, r in models.items():
-        if name in ("zero", "mean"):
+        if name in ("zero", "mean") or name.endswith("_fixed"):
             continue
         t = r["test"]
         blocks = r.get("test_blocks_r2") or []
@@ -502,7 +594,7 @@ def verdict(models):
     return rows, winners
 
 
-def write_report(results, ma, importances, status, out, base, used, run_secs):
+def write_report(results, ma, importances, status, out, base, used, run_secs, wfr=None):
     L = []
     ser = status["series"]
     ok = [k for k, v in ser.items() if v.get("status") == "ok"]
@@ -539,8 +631,26 @@ def write_report(results, ma, importances, status, out, base, used, run_secs):
                      + (f" · risk: {', '.join(risk)}" if risk else " · no risk flags"))
         L += ["", ("**Verdict:** " + (f"`{winners[0][0]}` beats both the random walk and the constant drift significantly, with no overfitting flags."
                                        if winners else "no model beats both the random walk and the constant drift significantly without an overfitting flag.")), ""]
+        probes = [(n, r) for n, r in R["models"].items() if n.endswith("_fixed")]
+        if probes:
+            L.append("Overfitting probes (fixed settings, no validation brake): " + "; ".join(
+                f"{n} in-sample {pct(r['refit_in_sample']['r2_oos'], 1)} → test {pct(r['test']['r2_oos'], 1)}" for n, r in probes))
+            L.append("")
         if "gru" in R["models"] and R["models"]["gru"].get("seed_test_r2"):
             L.append("GRU test R²oos by seed: " + ", ".join(pct(v, 2) for v in R["models"]["gru"]["seed_test_r2"]))
+            L.append("")
+    if wfr:
+        L += ["## Walk-forward check (refit every 91 days, 2020 onwards)", "",
+              "Each quarter the models are re-tuned on the trailing year and refit on all earlier data, then forecast the next quarter. "
+              "This tests the same models over about 25 different periods instead of one.", ""]
+        for t, W in wfr.items():
+            yrs = sorted({y for r in W["models"].values() for y in r["by_year_r2"]})
+            L += [f"**{results.get(t, {}).get('label', t)}** · {W['folds']} folds, {W['period'][0]} to {W['period'][1]}", "",
+                  "| Model | R²oos | DM p vs random walk | DM p vs drift | " + " | ".join(str(y) for y in yrs) + " |",
+                  "|---|---|---|---|" + "---|" * len(yrs)]
+            for n, r in W["models"].items():
+                L.append(f"| {n} | **{pct(r['r2_oos'], 2)}** | {fnum(r['dm_p'])} | {fnum(r['dm_vs_drift_p'])} | "
+                         + " | ".join(pct(r["by_year_r2"].get(y), 1) for y in yrs) + " |")
             L.append("")
     if ma:
         L += ["## 50/100/200-day moving averages, 30 days ahead", "",
@@ -632,11 +742,17 @@ def main():
     for t in a.targets.split(","):
         te = run_target(t, X, Y, C, results, preds, importances)
     ma = ma_forecasts(C, preds, te) if any(k[0] == "m30" for k in preds) else {}
-    (out / "metrics.json").write_text(json.dumps({"results": results, "moving_averages": ma, "xgb_importance": importances},
+    wfr = {}
+    for t in a.targets.split(","):
+        try:
+            wfr[t] = walk_forward(t, X, Y)
+        except Exception:
+            log(f"[{t}] walk-forward failed:\n{traceback.format_exc()}")
+    (out / "metrics.json").write_text(json.dumps({"results": results, "moving_averages": ma, "xgb_importance": importances, "walk_forward": wfr},
                                                  indent=1, default=lambda o: None if isinstance(o, float) and np.isnan(o) else str(o)))
     pd.DataFrame({f"{t}__{m}": s for (t, m), s in preds.items()}).to_csv(out / "test_predictions.csv")
     X.tail(1).T.to_csv(out / "latest_features.csv")
-    write_report(results, ma, importances, status, out, base, used, time.time() - t0)
+    write_report(results, ma, importances, status, out, base, used, time.time() - t0, wfr)
     charts(results, preds, Y, out)
     (out / "model.log").write_text("\n".join(LOG))
     log(f"done in {time.time() - t0:.0f}s")

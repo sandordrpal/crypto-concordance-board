@@ -111,16 +111,11 @@ def coinmetrics(out):
         "CapMVRVCur": ("cm_mvrv", "level", "Market value to realized value"),
         "AdrActCnt": ("cm_active_addresses", "count", "Active addresses"),
         "TxCnt": ("cm_tx_count", "count", "Transactions"),
-        "TxTfrValAdjUSD": ("cm_transfer_value", "count", "Adjusted transfer value, USD"),
         "HashRate": ("cm_hashrate", "count", "Hash rate"),
-        "FeeTotUSD": ("cm_fees", "count", "Total fees, USD"),
         "IssTotUSD": ("cm_issuance", "count", "Miner issuance, USD"),
-        "NVTAdj": ("cm_nvt", "level", "Network value to transactions (adjusted)"),
         "FlowInExUSD": ("cm_exchange_inflow", "count", "Exchange inflow, USD"),
         "FlowOutExUSD": ("cm_exchange_outflow", "count", "Exchange outflow, USD"),
         "SplyExNtv": ("cm_exchange_supply", "count", "BTC held on exchanges"),
-        "RevUSD": ("cm_miner_revenue", "count", "Miner revenue, USD"),
-        "DiffMean": ("cm_difficulty", "count", "Mining difficulty"),
     }
     for m, (name, kind, desc) in metrics.items():
         def one(m=m, name=name, kind=kind, desc=desc):
@@ -229,7 +224,16 @@ def gdelt(out):
         def one(name=name, q=q, mode=mode, desc=desc):
             params = {"query": q, "mode": mode, "format": "csv", "startdatetime": "20170101000000",
                       "enddatetime": f"{TODAY:%Y%m%d}235959"}
-            r = get("https://api.gdeltproject.org/api/v2/doc/doc", params=params)
+            r = None
+            for i in range(5):
+                r = requests.get("https://api.gdeltproject.org/api/v2/doc/doc", params=params, headers=UA, timeout=90)
+                if r.status_code == 429 or "limit requests" in r.text[:300].lower():
+                    time.sleep(20 * (i + 1))
+                    continue
+                r.raise_for_status()
+                break
+            else:
+                raise RuntimeError("GDELT rate limit persisted")
             df = pd.read_csv(io.StringIO(r.text))
             df.columns = [c.strip().lower() for c in df.columns]
             vcol = "value" if "value" in df else df.columns[-1]
@@ -241,7 +245,7 @@ def gdelt(out):
             kind = "count" if mode == "timelinevolraw" else "level"
             save(out, name, s, "GDELT 2.0 DOC API", kind, 1, desc)
         attempt(name, "GDELT", one)
-        time.sleep(6)
+        time.sleep(12)
 
 
 def funding(out):
@@ -263,19 +267,23 @@ def funding(out):
         return pd.Series({pd.to_datetime(x["fundingTime"], unit="ms"): float(x["fundingRate"]) for x in rows}), "Binance"
 
     def bitmex():
-        rows, startn = [], 0
-        while True:
+        rows, since = [], "2016-05-01T00:00:00.000Z"
+        for _ in range(200):
             r = requests.get("https://www.bitmex.com/api/v1/funding", headers=UA, timeout=30,
-                             params={"symbol": "XBTUSD", "count": 500, "start": startn, "reverse": "false"})
+                             params={"symbol": "XBTUSD", "count": 500, "startTime": since, "reverse": "false"})
+            if r.status_code == 429:
+                time.sleep(30)
+                continue
             if r.status_code != 200:
                 raise RuntimeError(f"BitMEX HTTP {r.status_code}")
             batch = r.json()
             if not batch:
                 break
             rows += batch
-            startn += len(batch)
-            if len(batch) < 500:
+            nxt = (pd.Timestamp(batch[-1]["timestamp"]) + pd.Timedelta(seconds=1)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+            if len(batch) < 500 or nxt == since:
                 break
+            since = nxt
             time.sleep(2.2)
         return pd.Series({pd.to_datetime(x["timestamp"]): float(x["fundingRate"]) for x in rows}), "BitMEX"
 
