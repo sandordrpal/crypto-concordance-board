@@ -1,13 +1,13 @@
 name: research
 
-# Collects the daily variables, trains and tests the models, and publishes the data and the
-# report to the `research-results` branch. Runs on demand, when the research code changes,
-# and once a day so the variables stay current. Delete the `schedule` block to stop daily runs.
+# Collects the daily variables and hourly candles, runs the four research tracks in parallel and
+# publishes data, reports and the pre-registered scorecard to the `research-results` branch.
+# Runs on demand, when the research code changes, and once a day. Delete `schedule` to stop daily runs.
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["research/**", ".github/workflows/research.yml"]
+    paths: ["research/**.py", "research/requirements.txt", ".github/workflows/research.yml"]
   schedule:
     - cron: "17 2 * * *"
 
@@ -16,47 +16,104 @@ permissions:
 
 concurrency:
   group: research
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  run:
+  collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - run: pip install -r research/requirements.txt 2>&1 | tail -1
+      - name: Restore hourly-file cache
+        uses: actions/cache@v4
+        with:
+          path: hf_cache
+          key: hf-${{ github.run_id }}
+          restore-keys: hf-
+      - name: Daily variables
+        run: |
+          set -o pipefail; mkdir -p out/logs
+          python research/collect.py --out out/data 2>&1 | tee out/logs/collect.log
+      - name: Hourly candles
+        run: |
+          set -o pipefail
+          python research/collect_hf.py --out out --cache hf_cache 2>&1 | tee out/logs/collect_hf.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: inputs
+          path: out
+          retention-days: 3
 
+  track:
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: direction
+            cmd: python research/model.py --data out/data --out out/results/direction
+          - name: volatility
+            cmd: python research/vol.py --hf out/hf --data out/data --out out/results/volatility
+          - name: cross_section
+            cmd: python research/xsec.py --hf out/hf --out out/results/cross_section
+          - name: intraday
+            cmd: python research/intraday.py --hf out/hf --data out/data --out out/results/intraday
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install packages
         run: |
-          set -o pipefail
-          mkdir -p out/logs
-          python -m pip install --upgrade pip 2>&1 | tail -1
-          pip install torch --index-url https://download.pytorch.org/whl/cpu 2>&1 | tail -2 | tee out/logs/install.log
-          pip install -r research/requirements.txt 2>&1 | tail -2 | tee -a out/logs/install.log
-          pip freeze > out/logs/packages.txt
-
-      - name: Collect data
+          pip install torch --index-url https://download.pytorch.org/whl/cpu 2>&1 | tail -1
+          pip install -r research/requirements.txt 2>&1 | tail -1
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: out
+      - name: Run ${{ matrix.name }}
         run: |
-          set -o pipefail
-          python research/collect.py --out out/data 2>&1 | tee out/logs/collect.log
+          set -o pipefail; mkdir -p out/logs out/results/${{ matrix.name }}
+          ${{ matrix.cmd }} 2>&1 | tee out/logs/${{ matrix.name }}.log
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.name }}
+          path: |
+            out/results/${{ matrix.name }}
+            out/logs/${{ matrix.name }}.log
+          retention-days: 3
 
-      - name: Train, validate and test
+  publish:
+    needs: [collect, track]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: art
+      - name: Assemble and push
         run: |
-          set -o pipefail
-          python research/model.py --data out/data --out out/results 2>&1 | tee out/logs/model.log
-
-      - name: Publish to research-results branch
-        if: always()
-        run: |
-          cd out
-          if [ -f results/REPORT.md ]; then
-            sed -E 's#\]\(([A-Za-z0-9_]+\.png)\)#](results/\1)#g' results/REPORT.md > README.md
-          else
-            printf '# Research run %s did not finish\n\nSee logs/ for the error.\n' "$GITHUB_RUN_ID" > README.md
+          mkdir -p pub/results pub/logs
+          if [ -d art/inputs ]; then
+            cp -r art/inputs/data pub/data 2>/dev/null || true
+            cp art/inputs/logs/* pub/logs/ 2>/dev/null || true
+            cp art/inputs/hf/status.json pub/data/hourly_status.json 2>/dev/null || true
           fi
+          for d in art/result-*; do
+            [ -d "$d" ] || continue
+            [ -d "$d/results" ] && cp -r "$d"/results/* pub/results/ 2>/dev/null || true
+            [ -d "$d/logs" ] && cp "$d"/logs/* pub/logs/ 2>/dev/null || true
+          done
+          python research/summarize.py --results pub/results --out pub/README.md --run "$(date -u +%F) (run $GITHUB_RUN_ID)"
+          cd pub
           echo "{\"run_id\": \"$GITHUB_RUN_ID\", \"sha\": \"$GITHUB_SHA\", \"finished_utc\": \"$(date -u +%FT%TZ)\"}" > run.json
           git init -q -b research-results
           git config user.name "github-actions[bot]"

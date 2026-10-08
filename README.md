@@ -67,6 +67,8 @@ Edit the `CONFIG` block at the top of the script in `index.html`:
 1. `research/collect.py` downloads about 50 daily variables from free public sources: Bitcoin and Ether prices, US equities, VIX and MOVE volatility, the dollar, gold, oil, Treasury yields and spreads, Fed balance sheet and money supply, Coin Metrics on-chain data, Fear & Greed, news-based policy uncertainty (EPU) and geopolitical risk (GPR), GDELT news tone, Wikipedia attention, stablecoin supply and futures funding. Each value is held back by its publication lag so models only see what was public at the time.
 2. `research/model.py` builds leak-safe daily features and compares a random walk, a constant drift, ridge regression, polynomial ridge, XGBoost and a GRU neural network on 1-, 7- and 30-day returns and on the 30-day-ahead 50/100/200-day moving averages. Train 2018–2022, validate 2023, test 2024 onwards, with purged boundaries.
 
+3. Three further tracks use hourly Binance candles with taker buy volume for the board's coins, with success thresholds fixed in advance in [`research/OUTCOMES.md`](research/OUTCOMES.md): Bitcoin volatility against the HAR benchmark plus a volatility-targeted holding (`vol.py`), weekly ranking of coins (`xsec.py`), and intraday order flow 1–12 hours ahead with a cost-aware strategy (`intraday.py`). `collect_hf.py` downloads the candles; `summarize.py` builds the scorecard.
+
 Results, the collected data and run logs are published to the [`research-results`](../../tree/research-results) branch, whose README is the latest report. `research/synthetic.py` creates simulated inputs for testing the pipeline offline.
 
 ## Support
