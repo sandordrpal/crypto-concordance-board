@@ -60,6 +60,15 @@ Edit the `CONFIG` block at the top of the script in `index.html`:
 - No on-chain, ETF-flow or macro data. No server, so no alerts and no long-term stored track record.
 - Visitors in countries where Binance blocks access will not get live data.
 
+## Research pipeline
+
+`research/` holds a model comparison that runs on GitHub Actions (`.github/workflows/research.yml`): on demand, whenever the research code changes, and once a day.
+
+1. `research/collect.py` downloads about 50 daily variables from free public sources: Bitcoin and Ether prices, US equities, VIX and MOVE volatility, the dollar, gold, oil, Treasury yields and spreads, Fed balance sheet and money supply, Coin Metrics on-chain data, Fear & Greed, news-based policy uncertainty (EPU) and geopolitical risk (GPR), GDELT news tone, Wikipedia attention, stablecoin supply and futures funding. Each value is held back by its publication lag so models only see what was public at the time.
+2. `research/model.py` builds leak-safe daily features and compares a random walk, a constant drift, ridge regression, polynomial ridge, XGBoost and a GRU neural network on 1-, 7- and 30-day returns and on the 30-day-ahead 50/100/200-day moving averages. Train 2018–2022, validate 2023, test 2024 onwards, with purged boundaries.
+
+Results, the collected data and run logs are published to the [`research-results`](../../tree/research-results) branch, whose README is the latest report. `research/synthetic.py` creates simulated inputs for testing the pipeline offline.
+
 ## Support
 
 If the board is useful to you, you can support it at [buymeacoffee.com/palsandormd](https://buymeacoffee.com/palsandormd).
