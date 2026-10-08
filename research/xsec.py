@@ -117,7 +117,10 @@ def walk_forward(P, feats):
             e = np.mean((m.predict(X[val]) - y[val]) ** 2)
             if best is None or e < best[0]:
                 best = (e, a)
-        preds["ridge"][tst] = Ridge(alpha=best[1]).fit(X[trn], y[trn]).predict(X[tst])
+        try:
+            preds["ridge"][tst] = Ridge(alpha=best[1]).fit(X[trn], y[trn]).predict(X[tst])
+        except Exception:
+            log(f"ridge block failed:\n{traceback.format_exc()}")
         try:
             import xgboost as xgb
             m = xgb.XGBRegressor(n_estimators=300, learning_rate=0.03, max_depth=3, min_child_weight=50, subsample=0.7,
@@ -126,6 +129,8 @@ def walk_forward(P, feats):
         except ImportError:
             from sklearn.ensemble import HistGradientBoostingRegressor as HGB
             preds["xgboost"][tst] = HGB(max_depth=3, learning_rate=0.03, max_iter=300, min_samples_leaf=50).fit(X[trn], y[trn]).predict(X[tst])
+        except Exception:
+            log(f"xgboost block from {pd.Timestamp(start).date()} failed:\n{traceback.format_exc()}")
         try:
             from sklearn.neural_network import MLPRegressor
             ps = []

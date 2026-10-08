@@ -197,6 +197,8 @@ def walk_forward(F, Y, h, use_gru):
             P["xgboost"][test] = m.fit(X[fit], y[fit]).predict(X[test])
         except ImportError:
             P.pop("xgboost", None)
+        except Exception:
+            log(f"[y{h}] xgboost {yr} failed:\n{traceback.format_exc()}")
         if use_gru:
             try:
                 import torch
@@ -291,9 +293,12 @@ def main():
             preds4 = P
     strat, bh = {}, None
     for m, p in preds4.items():
-        if m == "zero":
+        if m == "zero" or np.isnan(p).all():
             continue
-        strat[m], bh = strategy(p, Y["y4"].values, F.index)
+        try:
+            strat[m], bh = strategy(p, Y["y4"].values, F.index)
+        except Exception:
+            log(f"strategy {m} failed:\n{traceback.format_exc()}")
     score = []
     r4 = {m: r for m, r in results["y4"].items() if m != "zero"}
     c1 = [m for m, r in r4.items() if r["r2_oos"] > 0 and r["dm_p"] == r["dm_p"] and r["dm_p"] is not None and r["dm_p"] < 0.05 and r["hit_rate"] > 0.51]
