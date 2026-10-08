@@ -68,8 +68,9 @@ def features(C, Q, B):
     return f
 
 
-def build(C, Q, B):
+def build(C, Q, B, extra=None):
     f = features(C, Q, B)
+    f.update(extra or {})                           # version 2 adds characteristics here
     fwd = np.log(C.shift(-7) / C)                   # next-week log return, formation at Sunday close
     hist = C.notna().cumsum()
     liq = Q.rolling(30, min_periods=20).median()
@@ -92,10 +93,10 @@ def build(C, Q, B):
     return P, list(f)
 
 
-def walk_forward(P, feats):
+def walk_forward(P, feats, models=("ridge", "xgboost", "mlp"), start=WF_START):
     dates = sorted(P["date"].unique())
-    test_dates = [d for d in dates if d >= WF_START]
-    preds = {m: pd.Series(np.nan, index=P.index) for m in ("momentum_4w", "ridge", "xgboost", "mlp")}
+    test_dates = [d for d in dates if d >= start]
+    preds = {m: pd.Series(np.nan, index=P.index) for m in ("momentum_4w",) + tuple(models)}
     preds["momentum_4w"] = P["mom_4w"].astype(float)
     for k in range(0, len(test_dates), 13):
         block = test_dates[k:k + 13]
@@ -118,19 +119,26 @@ def walk_forward(P, feats):
             if best is None or e < best[0]:
                 best = (e, a)
         try:
-            preds["ridge"][tst] = Ridge(alpha=best[1]).fit(X[trn], y[trn]).predict(X[tst])
+            if "ridge" in models:
+                preds["ridge"][tst] = Ridge(alpha=best[1]).fit(X[trn], y[trn]).predict(X[tst])
         except Exception:
             log(f"ridge block failed:\n{traceback.format_exc()}")
         try:
+            if "xgboost" not in models:
+                raise LookupError
             import xgboost as xgb
             m = xgb.XGBRegressor(n_estimators=300, learning_rate=0.03, max_depth=3, min_child_weight=50, subsample=0.7,
                                  colsample_bytree=0.7, reg_lambda=5, n_jobs=4, random_state=0)
             preds["xgboost"][tst] = m.fit(X[trn], y[trn]).predict(X[tst])
+        except LookupError:
+            pass
         except ImportError:
             from sklearn.ensemble import HistGradientBoostingRegressor as HGB
             preds["xgboost"][tst] = HGB(max_depth=3, learning_rate=0.03, max_iter=300, min_samples_leaf=50).fit(X[trn], y[trn]).predict(X[tst])
         except Exception:
             log(f"xgboost block from {pd.Timestamp(start).date()} failed:\n{traceback.format_exc()}")
+        if "mlp" not in models:
+            continue
         try:
             from sklearn.neural_network import MLPRegressor
             ps = []

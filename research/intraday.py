@@ -154,13 +154,13 @@ def gru_fit_predict(Zi, yi, Zv, yv, Zt, L=24, seeds=(1, 2, 3)):
     return np.mean(preds, 0)
 
 
-def walk_forward(F, Y, h, use_gru):
+def walk_forward(F, Y, h, use_gru, years=TEST_YEARS):
     y = Y[f"y{h}"].values
     idx = F.index
     X = F.values
     ok = ~np.isnan(y) & (idx >= START)
     P = {m: np.full(len(idx), np.nan) for m in ("zero", "ridge", "xgboost") + (("gru",) if use_gru else ())}
-    for yr in TEST_YEARS:
+    for yr in years:
         t0 = time.time()
         ts = pd.Timestamp(f"{yr}-01-01")
         test = ok & (idx >= ts) & (idx < pd.Timestamp(f"{yr + 1}-01-01"))

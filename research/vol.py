@@ -104,14 +104,18 @@ class Std:
         return ((X.fillna(self.med) - self.mu) / self.sd).clip(-6, 6).fillna(0).values
 
 
-def forecast_all(F, Y, HAR, EXT, ALL, tgt, horizon, start):
-    """Walk-forward variance forecasts for every model. Returns DataFrame of variance forecasts."""
+def forecast_all(F, Y, HAR, EXT, ALL, tgt, horizon, start, models=("ridge", "xgboost", "gru"),
+                 linear=("har", "har_ext"), min_cov=0.6):
+    """Walk-forward variance forecasts for every model. Returns DataFrame of variance forecasts.
+    `models`, `linear` and `min_cov` exist for the version 2 study; the defaults are version 1."""
     y = 0.5 * np.log(Y[tgt])                      # log volatility target
     idx = F.index
     test_days = idx[(idx >= start) & y.notna().values]
     out = pd.DataFrame(index=test_days)
     # HAR and HAR-ext: OLS re-estimated every day on a rolling 3-year window
     for name, cols in (("har", HAR), ("har_ext", EXT)):
+        if name not in linear:
+            continue
         t0 = time.time()
         X = F[cols]
         preds = []
@@ -131,7 +135,7 @@ def forecast_all(F, Y, HAR, EXT, ALL, tgt, horizon, start):
         log(f"[{tgt}] {name} done in {time.time() - t0:.0f}s")
     # ridge / xgboost / gru: refit every 30 days on all earlier data, tuned on the trailing year
     refit_days = test_days[::30]
-    for name in ("ridge", "xgboost", "gru"):
+    for name in models:
         t0 = time.time()
         preds = pd.Series(np.nan, index=test_days)
         try:
@@ -142,7 +146,7 @@ def forecast_all(F, Y, HAR, EXT, ALL, tgt, horizon, start):
                 fit = (idx <= cut) & (idx >= pd.Timestamp("2018-03-01")) & y.notna().values
                 val = fit & (idx > cut - pd.Timedelta(days=365))
                 itr = fit & (idx <= cut - pd.Timedelta(days=365 + horizon))
-                cols = [c for c in ALL if F.loc[fit, c].notna().mean() > 0.6]
+                cols = [c for c in ALL if F.loc[fit, c].notna().mean() > min_cov and F.loc[itr, c].notna().sum() >= 100]
                 if name == "ridge":
                     P1 = Std().fit(F.loc[itr, cols])
                     best = None

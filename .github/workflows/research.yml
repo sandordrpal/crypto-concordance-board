@@ -48,8 +48,35 @@ jobs:
           path: out
           retention-days: 3
 
+  collect_v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r research/requirements.txt 2>&1 | tail -1
+      - name: Restore version 2 file cache
+        uses: actions/cache@v4
+        with:
+          path: v2_cache
+          key: v2-${{ github.run_id }}
+          restore-keys: v2-
+      - name: Version 2 inputs (futures, DVOL, Coinbase, FOMC)
+        run: |
+          set -o pipefail; mkdir -p out/logs
+          python research/collect_v2.py --out out --cache v2_cache 2>&1 | tee out/logs/collect_v2.log
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inputs_v2
+          path: out
+          retention-days: 3
+
   track:
-    needs: collect
+    needs: [collect, collect_v2]
+    if: ${{ always() && needs.collect.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 150
     strategy:
@@ -64,6 +91,12 @@ jobs:
             cmd: python research/xsec.py --hf out/hf --out out/results/cross_section
           - name: intraday
             cmd: python research/intraday.py --hf out/hf --data out/data --out out/results/intraday
+          - name: v2_volatility
+            cmd: python research/v2.py --track vol --hf out/hf --data out/data --v2 out/v2 --out out/results/v2_volatility
+          - name: v2_cross_section
+            cmd: python research/v2.py --track xsec --hf out/hf --data out/data --v2 out/v2 --out out/results/v2_cross_section
+          - name: v2_intraday
+            cmd: python research/v2.py --track intraday --hf out/hf --data out/data --v2 out/v2 --out out/results/v2_intraday
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -76,6 +109,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: inputs
+          path: out
+      - if: startsWith(matrix.name, 'v2_')
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: inputs_v2
           path: out
       - name: Run ${{ matrix.name }}
         run: |
@@ -91,7 +130,7 @@ jobs:
           retention-days: 3
 
   publish:
-    needs: [collect, track]
+    needs: [collect, collect_v2, track]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -106,6 +145,10 @@ jobs:
             cp -r art/inputs/data pub/data 2>/dev/null || true
             cp art/inputs/logs/* pub/logs/ 2>/dev/null || true
             cp art/inputs/hf/status.json pub/data/hourly_status.json 2>/dev/null || true
+          fi
+          if [ -d art/inputs_v2 ]; then
+            cp art/inputs_v2/logs/* pub/logs/ 2>/dev/null || true
+            cp art/inputs_v2/v2/status.json pub/data/v2_status.json 2>/dev/null || true
           fi
           for d in art/result-*; do
             [ -d "$d" ] || continue
