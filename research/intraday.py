@@ -312,7 +312,10 @@ def main():
         s["positive_years"] = int(pos_years)
         if s["passes_C2"]:
             c2.append(m)
-    bs = max(strat, key=lambda m: strat[m].get("sharpe", -9))
+    def _sh(m):
+        v = strat[m].get("sharpe")
+        return v if v is not None and v == v else -9.0   # strategies that never traded have no Sharpe
+    bs = max(strat, key=_sh)
     score.append({"id": "C2", "outcome": "Cost-aware long/flat on the 4-hour forecast", "pass": bool(c2),
                   "result": f"best {bs}: net Sharpe {num(strat[bs].get('sharpe'))} vs {num(bh.get('sharpe'))} buy-and-hold, positive in {strat[bs]['positive_years']} of {len(strat[bs]['yearly'])} years"})
     jdump({"forecasts": results, "strategy": strat, "buy_and_hold": bh, "scorecard": score, "features": list(F.columns),
