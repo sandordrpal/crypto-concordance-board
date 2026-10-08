@@ -14,7 +14,9 @@ def load_hourly(hf_dir, sym):
     f = Path(hf_dir) / f"{sym}.csv.gz"
     if not f.exists():
         return None
-    df = pd.read_csv(f, parse_dates=["time"]).set_index("time").sort_index()
+    df = pd.read_csv(f)
+    df["time"] = pd.to_datetime(df["time"], format="mixed").dt.floor("h")   # files mix second and microsecond formats
+    df = df.set_index("time").sort_index()
     df = df[~df.index.duplicated(keep="last")]
     today = pd.Timestamp.now(tz="UTC").floor("h").tz_localize(None)
     df = df[df.index < today]                       # drop the hour that is still forming

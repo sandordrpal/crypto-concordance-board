@@ -75,7 +75,7 @@ def parse_zip(path):
         df.columns = COLS[:len(df.columns)]
     t = pd.to_numeric(df["time"])
     unit = "us" if t.iloc[0] > 1e14 else "ms"   # Binance switched spot files to microseconds in 2025
-    df["time"] = pd.to_datetime(t, unit=unit, utc=True).dt.tz_localize(None)
+    df["time"] = pd.to_datetime(t, unit=unit, utc=True).dt.tz_localize(None).dt.floor("h")
     return df[[c for c in COLS if c not in ("close_time", "ignore")]]
 
 
