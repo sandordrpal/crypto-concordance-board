@@ -1,8 +1,10 @@
 {
- "run_utc": "2026-10-09 07:08:18.914558",
- "errors": {},
- "issued": 2450,
- "scored": 3650,
+ "run_utc": "2026-10-09 07:11:17.552972",
+ "errors": {
+  "TON": "TONUSDT: no closed candle in the last 3 h (not trading)"
+ },
+ "issued": 49,
+ "scored": 73,
  "coins_with_data": 50,
  "sources": [
   "https://data-api.binance.vision"

@@ -17,7 +17,7 @@
   "BCH",
   "HBAR",
   "LTC",
-  "TON",
+  "QNT",
   "SHIB",
   "DOT",
   "UNI",
@@ -52,5 +52,13 @@
   "CRV",
   "WIF",
   "ZEC"
+ ],
+ "changes": [
+  {
+   "utc": "2026-10-09 07:11:17.552972",
+   "removed": "TON",
+   "added": "QNT",
+   "reason": "not trading (run-in rule)"
+  }
  ]
 }
