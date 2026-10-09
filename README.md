@@ -4,6 +4,8 @@ A single-page dashboard that shows how far six signal families agree on each of 
 
 It does not predict prices and nothing on it is investment advice.
 
+**[Roadmap.md](Roadmap.md)** explains every function, every test with its pass and fail rules, the expected dates and results, and the 12-month roadmap.
+
 ## Run it
 
 Open `index.html` in a normal browser tab. No build step and no server are needed.
