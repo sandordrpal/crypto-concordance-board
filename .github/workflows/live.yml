@@ -1,0 +1,49 @@
+name: live-log
+
+# Hourly: issue the board's frozen typical-move ranges for the next hour and day, score the forecasts whose
+# outcome is now known, and append both to the `live-log` branch (append-only). See research/LIVE_TEST.md.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["research/live_ranges.py", ".github/workflows/live.yml"]
+  schedule:
+    - cron: "7 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-log
+  cancel-in-progress: false
+
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pandas numpy requests 2>&1 | tail -1
+      - name: Check out the log branch (create it on the first run)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin live-log >/dev/null; then
+            git clone -q --single-branch --branch live-log "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" live-log
+          else
+            mkdir live-log && cd live-log && git init -q -b live-log
+            git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          fi
+      - name: Issue and score
+        run: python research/live_ranges.py --log live-log
+      - name: Append to the log branch
+        run: |
+          cd live-log
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -q -m "Live log $(date -u +%FT%H:%MZ)"
+          for i in 1 2 3; do git push -q origin live-log && exit 0; git pull -q --rebase origin live-log; done
+          exit 1

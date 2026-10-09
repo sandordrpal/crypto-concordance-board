@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["research/**.py", "research/requirements.txt", ".github/workflows/research.yml"]
+    paths: ["research/**.py", "!research/live_ranges.py", "research/requirements.txt", ".github/workflows/research.yml"]
   schedule:
     - cron: "17 2 * * *"
 

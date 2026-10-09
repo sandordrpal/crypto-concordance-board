@@ -69,6 +69,8 @@ Edit the `CONFIG` block at the top of the script in `index.html`:
 
 3. Three further tracks use hourly Binance candles with taker buy volume for the board's coins, with success thresholds fixed in advance in [`research/OUTCOMES.md`](research/OUTCOMES.md): Bitcoin volatility against the HAR benchmark plus a volatility-targeted holding (`vol.py`), weekly ranking of coins (`xsec.py`), and intraday order flow 1–12 hours ahead with a cost-aware strategy (`intraday.py`). `collect_hf.py` downloads the candles; `summarize.py` builds the scorecard.
 
+4. `research/live_ranges.py` runs every hour (`.github/workflows/live.yml`). It logs the board's typical-move ranges for the next hour and day for 50 coins before the outcome is known, then scores them, on the append-only [`live-log`](../../tree/live-log) branch. The pass rules are fixed in [`research/LIVE_TEST.md`](research/LIVE_TEST.md).
+
 Results, the collected data and run logs are published to the [`research-results`](../../tree/research-results) branch, whose README is the latest report. `research/synthetic.py` creates simulated inputs for testing the pipeline offline.
 
 ## Support
