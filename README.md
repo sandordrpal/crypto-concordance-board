@@ -73,7 +73,7 @@ Results, the collected data and run logs are published to the [`research-results
 
 ## Support
 
-If the board is useful to you, you can support it at [buymeacoffee.com/palsandormd](https://buymeacoffee.com/palsandormd).
+If the board is useful to you, you can support it at [buymeacoffee.com/palsandormd](https://buymeacoffee.com/palsandormd) or in Bitcoin at `3Mw3zMyh7wsQ3qaQNjWtmA4zeFoJNnRENf`.
 
 ## Attribution
 
