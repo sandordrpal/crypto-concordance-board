@@ -38,6 +38,13 @@ ISSUED_COLS = ["issued_utc", "as_of_utc", "coin", "base_close", "h1_68", "h1_95"
 OUT_COLS = ["as_of_utc", "coin", "horizon_h", "realized_abs_logret", "range_68", "range_95", "in_68", "in_95", "late", "scored_utc"]
 
 
+STALE_H = 3
+
+
+class StaleError(Exception):
+    pass
+
+
 def quantile(a, q):
     a = np.sort(np.asarray(a, float))
     pos = (len(a) - 1) * q
@@ -75,8 +82,12 @@ def fetch(sym, hosts):
                 rows = r.json()
                 now_ms = time.time() * 1000
                 rows = [x for x in rows if x[6] < now_ms]          # closed candles only
+                if not rows or now_ms - rows[-1][6] > STALE_H * 3600e3:
+                    raise StaleError(f"{sym}: no closed candle in the last {STALE_H} h (not trading)")
                 close_t = pd.to_datetime([x[6] + 1 for x in rows], unit="ms")
                 return pd.Series([float(x[4]) for x in rows], index=close_t), h
+            except StaleError:
+                raise
             except Exception as e:
                 last = f"{h} {type(e).__name__}"
                 time.sleep(1)
@@ -120,6 +131,9 @@ def verdict(lo, hi, band):
 
 def report(log):
     o = pd.read_csv(log / "ranges_outcomes.csv", parse_dates=["as_of_utc"]) if (log / "ranges_outcomes.csv").exists() else pd.DataFrame(columns=OUT_COLS)
+    uf = log / "universe.json"
+    if uf.exists():
+        o = o[o["coin"].isin(json.loads(uf.read_text())["coins"])]
     L = ["# Live calibration of the board's typical-move ranges", "",
          f"Updated {dt.datetime.now(dt.timezone.utc):%Y-%m-%d %H:%M} UTC. Rules and pass bands are fixed in "
          "[LIVE_TEST.md](https://github.com/sandordrpal/crypto-concordance-board/blob/main/research/LIVE_TEST.md) (R1-R4). "
@@ -185,13 +199,33 @@ def main():
             raise SystemExit(f"Could not reach Binance for enough coins: {status['errors']}")
         uf.write_text(json.dumps({"frozen_utc": str(now), "rule": "first 50 board candidates listed on Binance spot",
                                   "coins": universe}, indent=1))
+    stale = []
     for b in universe:
         if b in data:
             continue
         try:
             data[b], sources[b] = fetch(b + "USDT", hosts)
+        except StaleError as e:
+            stale.append(b)
+            status["errors"][b] = str(e)[:200]
         except Exception as e:
             status["errors"][b] = str(e)[:200]
+    # before day 0 a coin that is not trading is replaced by the next candidate; from day 0 the list is fixed
+    if stale and now < DAY0:
+        u = json.loads(uf.read_text())
+        for b in stale:
+            for nb in CANDIDATES:
+                if nb in universe:
+                    continue
+                try:
+                    data[nb], sources[nb] = fetch(nb + "USDT", hosts)
+                except Exception:
+                    continue
+                universe[universe.index(b)] = nb
+                u.setdefault("changes", []).append({"utc": str(now), "removed": b, "added": nb, "reason": "not trading (run-in rule)"})
+                break
+        u["coins"] = universe
+        uf.write_text(json.dumps(u, indent=1))
     if not data:
         (log / "last_run.json").write_text(json.dumps(status, indent=1))
         raise SystemExit("No price data this run")

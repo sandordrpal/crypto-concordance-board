@@ -20,8 +20,17 @@ each hour, for each coin, from the last 720 closed hourly Binance spot candles:
 - 24-hour range: the 68th and 95th percentiles of the 720 overlapping absolute 24-hour log returns;
 - percentiles by linear interpolation between order statistics; at least 100 values required.
 
-**Coins.** The first 50 of the board's candidate list that Binance lists at the first logged run, written to
-`universe.json` and never changed.
+**Coins.** The first 50 of the board's candidate list that are trading on Binance spot at the first logged run,
+written to `universe.json`.
+
+- A coin counts as trading only if it has a closed hourly candle in the last 3 hours.
+- Before day 0, a coin that stops trading is replaced by the next candidate, and the change is recorded in `universe.json`.
+- From day 0 the list is fixed: a coin that stops trading simply stops being scored.
+
+*Amendment, 2026-10-09, during the run-in and before day 0:* the first run included TON. Its Binance USDT
+market has had no trades since June 2026, and the board itself does not show it. The not-trading rule above
+was added, and TON was replaced by the next candidate. Run-in rows for TON stay in the log but are excluded
+from every analysis.
 
 **Outcome.** A forecast issued at hour t is a hit when |log(close at t+h) − log(close at t)| is at or below the
 range, for h = 1 and h = 24 hours.
