@@ -1,0 +1,61 @@
+Traceback (most recent call last):
+  File "/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py", line 47, in attempt
+    fn()
+  File "/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py", line 236, in one
+    raise RuntimeError("GDELT rate limit persisted")
+RuntimeError: GDELT rate limit persisted
+== yahoo
+[ok]   btc (0.6s)
+[ok]   eth (0.2s)
+[ok]   sp500 (0.3s)
+[ok]   nasdaq (0.2s)
+[ok]   vix (0.2s)
+[ok]   move (0.2s)
+[ok]   dxy (0.2s)
+[ok]   gold (0.2s)
+[ok]   oil (0.2s)
+[ok]   ust10y_yahoo (0.2s)
+[ok]   mstr (0.2s)
+[ok]   coin (0.1s)
+== coinmetrics
+[ok]   cm_price (0.4s)
+[ok]   cm_mvrv (0.3s)
+[ok]   cm_active_addresses (0.2s)
+[ok]   cm_tx_count (0.2s)
+[ok]   cm_hashrate (0.2s)
+[ok]   cm_issuance (0.2s)
+[ok]   cm_exchange_inflow (0.2s)
+[ok]   cm_exchange_outflow (0.2s)
+[ok]   cm_exchange_supply (0.2s)
+== fred
+[ok]   fed_funds (0.3s)
+[ok]   ust2y (0.1s)
+[ok]   ust10y (0.1s)
+[ok]   curve_10y2y (0.1s)
+[ok]   breakeven5y (0.1s)
+[ok]   hy_spread (0.1s)
+[ok]   usd_broad (0.2s)
+[ok]   reverse_repo (0.2s)
+[ok]   fed_balance_sheet (0.1s)
+[ok]   treasury_account (0.1s)
+[ok]   m2 (0.0s)
+[ok]   epu_us (0.3s)
+[ok]   emu_us (0.3s)
+[ok]   fin_conditions (0.1s)
+== fear_greed
+[ok]   fear_greed (0.2s)
+== gpr
+[ok]   gpr (0.9s)
+== wikipedia
+[ok]   wiki_bitcoin (1.1s)
+[ok]   wiki_crypto (1.1s)
+== stablecoins
+[ok]   stablecoin_supply (0.2s)
+== gdelt
+[fail] news_tone_bitcoin: GDELT rate limit persisted
+[ok]   news_volume_bitcoin (94.4s)
+[ok]   news_tone_macro (54.8s)
+[ok]   news_tone_conflict (167.8s)
+== funding
+[ok]   funding_rate (66.2s)
+collected 47 of 48 series

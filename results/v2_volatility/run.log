@@ -1,0 +1,24 @@
+version 2 inputs: 74 of 75 sources ok
+volatility: 23 / 27 / 45 inputs in F0 / F1 / F2
+[v1] F0-ridge     QLIKE 0.3878 = 0.873x HAR, p 0.0000
+[v1] F0-xgboost   QLIKE 0.3683 = 0.829x HAR, p 0.0001
+[v1] F1-ridge     QLIKE 0.3889 = 0.876x HAR, p 0.0000
+[v1] F1-xgboost   QLIKE 0.3664 = 0.825x HAR, p 0.0000
+[v1] F2-ridge     QLIKE 0.3955 = 0.891x HAR, p 0.0003
+[v1] F2-xgboost   QLIKE 0.3703 = 0.834x HAR, p 0.0000
+[volatility] F1 vs F0 (ridge)             DM -0.23 p 0.8218 Holm 1.0000
+[volatility] F2 vs F0 (ridge)             DM -1.14 p 0.2547 Holm 1.0000
+[volatility] F2 vs F1 (ridge)             DM -1.45 p 0.1464 Holm 0.8784
+[volatility] F1 vs F0 (xgboost)           DM 0.34 p 0.7319 Holm 1.0000
+[volatility] F2 vs F0 (xgboost)           DM -0.29 p 0.7715 Holm 1.0000
+[volatility] F2 vs F1 (xgboost)           DM -0.62 p 0.5345 Holm 1.0000
+[volatility] xgboost vs ridge (F0)        DM 1.55 p 0.1208 Holm 0.8456
+[volatility] xgboost vs ridge (F1)        DM 2.34 p 0.0192 Holm 0.1727
+[volatility] xgboost vs ridge (F2)        DM 2.26 p 0.0237 Holm 0.1896
+[v7] F0-ridge     QLIKE 0.1648 = 0.890x HAR, p 0.0230
+[v7] F0-xgboost   QLIKE 0.1777 = 0.960x HAR, p 0.5416
+[v7] F1-ridge     QLIKE 0.1680 = 0.907x HAR, p 0.0532
+[v7] F1-xgboost   QLIKE 0.1784 = 0.964x HAR, p 0.5936
+[v7] F2-ridge     QLIKE 0.1775 = 0.959x HAR, p 0.3778
+[v7] F2-xgboost   QLIKE 0.1893 = 1.023x HAR, p 0.7979
+runtime 5.9 min

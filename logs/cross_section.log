@@ -1,0 +1,5 @@
+67 coins · 417 weekly formations · 17353 coin-weeks · 22 characteristics
+momentum_4w  IC -0.0255 (t -2.10) top Sharpe 0.79 EW Sharpe 0.76 excess t 0.33
+ridge        IC +0.0702 (t 4.62) top Sharpe 0.71 EW Sharpe 0.76 excess t -0.95
+xgboost      IC +0.0793 (t 6.48) top Sharpe 0.82 EW Sharpe 0.76 excess t 0.14
+mlp          IC +0.0724 (t 6.70) top Sharpe 0.78 EW Sharpe 0.76 excess t -0.17
