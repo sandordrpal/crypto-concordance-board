@@ -1,6 +1,6 @@
 # Crypto Concordance Board: functions, tests and roadmap
 
-*Last updated 9 October 2026. Information only, not investment advice.*
+*Last updated 11 October 2026. Information only, not investment advice.*
 
 The Crypto Concordance Board is a free, live dashboard for 50 cryptocurrencies, with a public research
 programme behind it. This page explains:
@@ -168,14 +168,15 @@ Coverage means the share of real moves that stayed inside the range. Any other o
 - **What happens next:** if a test fails, the board's wording changes within a week to the measured figure ("in the live test, x in 100 moves stayed inside"). If all four pass, the board may say the ranges are live-tested.
 - **Live results:** [live-log/REPORT.md](../../blob/live-log/REPORT.md), updated hourly.
 
-### 4.2 Part L: frozen forecasting models (to be registered before 19 October 2026)
+### 4.2 Part L: frozen forecasting models (registered 11 October 2026)
 
 | ID | What is tested | Benchmark | Pass rule | Interim checks | Expected verdict |
 |---|---|---|---|---|---|
-| L1 | Next-day Bitcoin volatility forecast (ridge, frozen) | HAR | Lower QLIKE than HAR: p < 0.001 at an interim check, or p < 0.05 at full length | 3 months (Jan 2027), 6 months (Apr 2027), 9 months (Jul 2027) | A first significant result is likely after 6–9 months; full statistical power takes about 14 months (Dec 2027) |
-| L2 | Weekly coin ranking (ridge, frozen, 30 largest coins) | No information (IC = 0) | Mean IC > 0 with t > 2 over at least 40 weeks | 3, 6 and 9 months | Around weeks 47–49 (September 2027) |
+| L1 | Next-day Bitcoin volatility forecast (ridge, frozen recipe, refitted every 30 days) | HAR | Lower QLIKE than HAR: p < 0.001 at an interim check, or p < 0.05 at the 12-month final analysis | 3 months (Jan 2027), 6 months (Apr 2027), 9 months (Jul 2027) | A first significant result is plausible after 6–9 months; final analysis Oct 2027 |
+| L2 | Weekly coin ranking (ridge, frozen recipe, refitted every 13 weeks; all eligible coins, as backtested) | No information (IC = 0) | Mean IC > 0 with t > 2 after 48 weekly formations | 26 weeks (Apr 2027), at p < 0.001 | Around 19 September 2027 |
 
-- **Expected result:** the backtests point to about 12% better than HAR (L1) and an IC near +0.08 (L2). Live results are often weaker than backtests; we will report whatever happens.
+- **Nothing changes:** the recipe (inputs, model, refit schedule, tuning) is frozen exactly as backtested; only the coefficients are refitted on schedule, and each refit is logged. Full protocol: [`research/LIVE_TEST.md`](research/LIVE_TEST.md), Part L.
+- **Expected result:** the backtests point to about 13% better than HAR (L1) and an IC near +0.08 (L2). Live results are often weaker than backtests; we will report whatever happens.
 - **Stop rule:** a model that does worse than its benchmark over a rolling 90 days, two months in a row, is withdrawn from the board until a new pre-registered test passes.
 
 ### 4.3 Part S: can the findings become a strategy that beats holding? (planned, version 3)
@@ -211,15 +212,16 @@ that passes is published as research only. This project does not sell trading si
 | Date | What happens |
 |---|---|
 | 9 Oct 2026 | Part R live logging starts (run-in) |
-| by 19 Oct 2026 | Parts L and S registered; models frozen |
+| 11 Oct 2026 | Part L registered: models frozen as backtested |
+| by 19 Oct 2026 | Part S (strategies) registered |
 | **19 Oct 2026** | **Day 0**: primary analysis starts |
 | early Nov 2026 | Board shows the frozen volatility gauge and the top-10 ranking, each with its live track record |
 | 19 Nov 2026 | First Part R verdicts (R1–R4) |
 | 19 Jan 2027 | Final Part R verdicts; 3-month interim check of L1 and L2 (stop rule) |
 | 19 Apr 2027 | 6-month interim: L1 can be declared validated at p < 0.001; first strategy readout |
 | 19 Jul 2027 | 9-month readout |
-| Sep 2027 | L2 ranking verdict (weeks 47–49) |
-| Oct 2027 | 12-month report: L1, L2 and strategy verdicts; version 1.0 decision |
+| Sep 2027 | L2 ranking final analysis (48 formations) |
+| Oct 2027 | 12-month report: L1 final analysis and strategy verdicts; version 1.0 decision |
 
 ---
 

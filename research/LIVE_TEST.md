@@ -69,8 +69,63 @@ coverage ("in the live test, x in y moves stayed inside") within a week. If all 
 may say the ranges are live-tested. This is gate G2 in the plan, replacing the earlier placeholder of an
 80% range.
 
-## Part L: frozen forecasting models (to be registered before day 0)
+## Part L: frozen forecasting models (registered 2026-10-11)
 
-The volatility model (ridge on the version 1 inputs, live candidate from version 2) and the coin-ranking model
-(same) will be frozen here with their commit hash, metrics, interim thresholds and the stop rule, before
-2026-10-19.
+**Principle: nothing changes.** The two live candidates from version 2 (cell F0-ridge in both tracks) go
+into the live test exactly as backtested, with the same inputs, model, refit schedule, tuning and training
+window. What is frozen is the *recipe*, not the coefficients: models are refitted on schedule with new data,
+exactly as in the walk-forward backtest that passed. Each refit is logged with its date, tuned penalty and
+coefficients.
+
+- **Frozen code:** commit `ae49efe` (2026-10-08) of `research/vol.py`, `research/xsec.py`, `research/v2.py`, `research/common.py`, `research/collect.py` and `research/collect_hf.py`.
+- **Allowed later:** changes that only move these functions into a daily logger, without changing any calculation.
+- **Not allowed:** any other change to inputs, model, schedule or tuning. That would start a new, separately registered challenger.
+
+### L1: next-day Bitcoin volatility
+
+| Item | Frozen setting |
+|---|---|
+| Target | Next UTC day's realized variance: sum of the 24 squared hourly log returns of Binance BTCUSDT spot |
+| Inputs | The version 1 input set (tier F0, `vol.build`): HAR terms, downside and jump shares, absolute and negative return, weekend flag, volume z-score, taker flow imbalance, and the version 1 news, macro and sentiment series, each with its publication lag |
+| Model | Ridge regression on standardized inputs (median fill, clipped at ±6), log-volatility target, smearing correction from validation residuals |
+| Training window | All days from 2018-03-01 up to the refit date |
+| Tuning | Penalty from the grid 10^−2 … 10^4 (13 values), chosen on the most recent 365 days before the refit, then refitted on all training days |
+| Input availability | An input enters a refit if it has at least 100 training days (version 2 rule) |
+| Refit schedule | Every 30 days, starting on day 0 (2026-10-19, 2026-11-18, …) |
+| Forecast issued | Daily, after the UTC day closes, for the next UTC day, logged before that day's first hour closes |
+| Benchmark | HAR (daily, weekly and monthly log volatility), ordinary least squares, re-estimated every day on a rolling 3-year window |
+| Primary metric | QLIKE loss relative to HAR |
+| Test | Diebold–Mariano on daily QLIKE differences (Newey–West, 1 lag), two-sided |
+| Interim analyses | At 3, 6 and 9 months (2027-01-19, 2027-04-19, 2027-07-19). Success may be declared only at p < 0.001 (Haybittle–Peto boundary) |
+| Final analysis | At 12 months (2026-10-19 to 2027-10-18): PASS if QLIKE is lower than HAR's with p < 0.05 |
+
+### L2: weekly coin ranking
+
+| Item | Frozen setting |
+|---|---|
+| Universe | Coins from the research list (`collect_hf.py`) with at least 120 days of hourly history and a 30-day median daily volume of at least $1 million at formation |
+| Target | Rank of next-week (7-day) log return across eligible coins |
+| Inputs | The 22 version 1 characteristics (`xsec.features`), rank-normalized across coins each week |
+| Model | Ridge regression; penalty chosen from {1, 10, 100, 1,000, 10,000} on the most recent 26 weeks, then refitted on all earlier weeks |
+| Refit schedule | Every 13 weeks, starting with the first live formation |
+| Formation | Sunday close (00:00 UTC Monday). The first live formation is Sunday 2026-10-18, issued at day 0 |
+| Primary metric | Weekly Spearman rank correlation (IC) between scores and next-week returns |
+| Test | Mean IC > 0 with Newey–West t-statistic (4 lags) |
+| Interim analysis | At 26 weeks (April 2027). Success may be declared only at p < 0.001 |
+| Final analysis | After 48 weekly formations (around 2027-09-19): PASS if mean IC > 0 with t > 2 |
+| Reported, not judged | Top-fifth portfolio against equal weight, after 0.10% cost per side |
+
+### Stop rule (both models)
+
+The rule is checked monthly:
+
+- L1 is withdrawn if its rolling 90-day QLIKE ratio to HAR is above 1.00 at two consecutive monthly checks.
+- L2 is withdrawn if its rolling 13-week mean IC is below 0 at two consecutive monthly checks.
+
+A withdrawn model is removed from the board. Its forecasts continue to be logged and scored until the
+final analysis, so the result is reported in full, as in an intention-to-treat analysis.
+
+### What the results change
+
+- **Interim success or a final pass:** the board may call the forecast *validated* (gates G4 and G5).
+- **A final fail:** the claim is withdrawn and the failure is published.
