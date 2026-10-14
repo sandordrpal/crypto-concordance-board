@@ -3,11 +3,15 @@ name: explore-fetch
 on:
   push:
     branches: ["explore/**"]
+    paths: [".github/workflows/explore.yml"]
+permissions:
+  contents: write
 jobs:
   fetch:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      - uses: actions/checkout@v4
       - run: pip install requests pandas 2>&1 | tail -1
       - name: Download BTCUSDT 1h candles since 2017
         run: |
@@ -27,5 +31,8 @@ jobs:
           df = df[df.close_time < time.time() * 1000]  # closed candles only
           df.to_csv("btc_1h.csv", index=False); print(len(df), df.open_time.iloc[0], df.open_time.iloc[-1])
           PY
-      - uses: actions/upload-artifact@v4
-        with: {name: btc_1h, path: btc_1h.csv}
+      - name: Commit the data to this branch
+        run: |
+          gzip -9 btc_1h.csv
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add btc_1h.csv.gz && git commit -q -m "Exploratory data: BTCUSDT 1h candles" && git push -q
