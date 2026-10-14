@@ -1,6 +1,7 @@
 name: live-log
 
-# Hourly: issue the board's frozen typical-move ranges for the next hour and day, score the forecasts whose
+# Every 10 minutes (GitHub's scheduler drops many runs, so frequent attempts keep at least one run in each hour):
+# issue the board's frozen typical-move ranges for the next hour and day, score the forecasts whose
 # outcome is now known, and append both to the `live-log` branch (append-only). See research/LIVE_TEST.md.
 on:
   workflow_dispatch:
@@ -8,7 +9,7 @@ on:
     branches: [main]
     paths: ["research/live_ranges.py", ".github/workflows/live.yml"]
   schedule:
-    - cron: "7 * * * *"
+    - cron: "3,13,23,33,43,53 * * * *"
 
 permissions:
   contents: write
@@ -42,6 +43,11 @@ jobs:
       - name: Append to the log branch
         run: |
           cd live-log
+          # commit only when forecasts, outcomes or the coin list changed (not for timestamp-only updates)
+          if [ -n "$(git ls-files)" ] && git diff --quiet -- ranges_issued.csv ranges_outcomes.csv universe.json; then
+            git checkout -- . 2>/dev/null || true
+            exit 0
+          fi
           git add -A
           git diff --cached --quiet && exit 0
           git commit -q -m "Live log $(date -u +%FT%H:%MZ)"
