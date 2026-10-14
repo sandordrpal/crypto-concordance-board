@@ -13,30 +13,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install requests pandas 2>&1 | tail -1
-      - name: Download Deribit BTC DVOL (hourly)
+      - name: Download daily candles for 10 coins
         run: |
-          python -c "import sys; sys.path.insert(0,'research'); from collect_v2 import deribit_dvol; d=deribit_dvol('BTC'); d.to_csv('dvol_btc.csv'); print(len(d), d.index.min(), d.index.max())"
-          gzip -9 dvol_btc.csv
-      - name: Download BTCUSDT 1h candles since 2017
-        if: false
-        run: |
-          python - <<'PY'
+          python - <<'PY2'
           import requests, time, pandas as pd
           url = "https://data-api.binance.vision/api/v3/klines"
-          start, rows = 1502928000000, []
-          while True:
-              r = requests.get(url, params=dict(symbol="BTCUSDT", interval="1h", startTime=start, limit=1000), timeout=30)
-              r.raise_for_status(); k = r.json()
-              if not k: break
-              rows += k; start = k[-1][0] + 3600_000
-              if len(k) < 1000: break
-              time.sleep(0.2)
-          df = pd.DataFrame(rows).iloc[:, [0, 1, 2, 3, 4, 5, 6]]
-          df.columns = ["open_time", "open", "high", "low", "close", "volume", "close_time"]
-          df = df[df.close_time < time.time() * 1000]  # closed candles only
-          df.to_csv("btc_1h.csv", index=False); print(len(df), df.open_time.iloc[0], df.open_time.iloc[-1])
-          PY
+          out = {}
+          for c in ["BTC","ETH","BNB","SOL","XRP","ADA","DOGE","AVAX","LINK","LTC"]:
+              start, rows = 1502928000000, []
+              while True:
+                  r = requests.get(url, params=dict(symbol=c+"USDT", interval="1d", startTime=start, limit=1000), timeout=30)
+                  r.raise_for_status(); k = r.json()
+                  if not k: break
+                  rows += k; start = k[-1][0] + 86400_000
+                  if len(k) < 1000: break
+                  time.sleep(0.2)
+              df = pd.DataFrame(rows).iloc[:, [0, 4, 6, 7]]
+              df.columns = ["open_time", "close", "close_time", "quote_volume"]
+              df = df[df.close_time < time.time() * 1000]
+              df["coin"] = c; out[c] = df; print(c, len(df))
+          pd.concat(out.values()).to_csv("coins_1d.csv", index=False)
+          PY2
+          gzip -9 coins_1d.csv
       - name: Commit the data to this branch
         run: |
           git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
-          git add dvol_btc.csv.gz && git commit -q -m "Exploratory data: BTC DVOL" && git push -q
+          git add coins_1d.csv.gz && git commit -q -m "Exploratory data: 10 coins daily" && git push -q
