@@ -13,7 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install requests pandas 2>&1 | tail -1
+      - name: Download Deribit BTC DVOL (hourly)
+        run: |
+          python -c "import sys; sys.path.insert(0,'research'); from collect_v2 import deribit_dvol; d=deribit_dvol('BTC'); d.to_csv('dvol_btc.csv'); print(len(d), d.index.min(), d.index.max())"
+          gzip -9 dvol_btc.csv
       - name: Download BTCUSDT 1h candles since 2017
+        if: false
         run: |
           python - <<'PY'
           import requests, time, pandas as pd
@@ -33,6 +38,5 @@ jobs:
           PY
       - name: Commit the data to this branch
         run: |
-          gzip -9 btc_1h.csv
           git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
-          git add btc_1h.csv.gz && git commit -q -m "Exploratory data: BTCUSDT 1h candles" && git push -q
+          git add dvol_btc.csv.gz && git commit -q -m "Exploratory data: BTC DVOL" && git push -q
