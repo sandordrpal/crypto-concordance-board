@@ -1,0 +1,44 @@
+name: hourly-keeper
+
+# GitHub's own scheduler drops most runs, so this workflow keeps the hourly live log on time without any
+# outside service: it starts `live-log` at minute 2 of every hour for about 5h40m, then starts a fresh copy of
+# itself (workflow_dispatch with the built-in token is allowed to start new runs). The 6-hourly schedule only
+# restarts the chain if it ever breaks; the concurrency group keeps a single chain running.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/keeper.yml"]
+  schedule:
+    - cron: "37 */6 * * *"
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: hourly-keeper
+  cancel-in-progress: false
+
+jobs:
+  keep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Start the live log at minute 2 of each hour
+        run: |
+          start=$(date +%s)
+          while [ $(( $(date +%s) - start )) -lt $(( 340 * 60 )) ]; do
+            now=$(date +%s)
+            next=$(( (now / 3600 + 1) * 3600 + 120 ))          # next hh:02 UTC
+            if [ $(( now % 3600 )) -lt 120 ]; then next=$(( now / 3600 * 3600 + 120 )); fi
+            [ $(( next - start )) -ge $(( 345 * 60 )) ] && break
+            sleep $(( next - now ))
+            gh workflow run live.yml --ref main && echo "dispatched live-log at $(date -u +%FT%H:%MZ)" || echo "dispatch failed at $(date -u +%FT%H:%MZ)"
+          done
+      - name: Hand over to a fresh keeper
+        if: always()
+        run: gh workflow run keeper.yml --ref main
