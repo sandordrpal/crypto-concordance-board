@@ -1,6 +1,6 @@
 # Live calibration of the board's typical-move ranges
 
-Updated 2026-10-15 12:02 UTC. Rules and pass bands are fixed in [LIVE_TEST.md](https://github.com/sandordrpal/crypto-concordance-board/blob/main/research/LIVE_TEST.md) (R1-R4). Primary analysis: on-time forecasts from 2026-10-19; earlier rows are a run-in.
+Updated 2026-10-15 13:02 UTC. Rules and pass bands are fixed in [LIVE_TEST.md](https://github.com/sandordrpal/crypto-concordance-board/blob/main/research/LIVE_TEST.md) (R1-R4). Primary analysis: on-time forecasts from 2026-10-19; earlier rows are a run-in.
 
 Coverage is the share of real moves that stayed inside the range. Confidence intervals (90%) are clustered by issue hour, because coins move together. PASS when the whole interval lies inside the band.
 
@@ -14,9 +14,9 @@ Coverage is the share of real moves that stayed inside the range. Confidence int
 | All rows from day 0, including back-filled | R2 | next 1 h | 95% | 0 | 0 | – | – | 92–98% | too few data yet |
 | All rows from day 0, including back-filled | R3 | next 24 h | 68% | 0 | 0 | – | – | 63–73% | too few data yet |
 | All rows from day 0, including back-filled | R4 | next 24 h | 95% | 0 | 0 | – | – | 92–98% | too few data yet |
-| Run-in (before day 0) | R1 | next 1 h | 68% | 9850 | 197 | 69.6% | 65.5–73.6% | 63–73% | inconclusive |
-| Run-in (before day 0) | R2 | next 1 h | 95% | 9850 | 197 | 95.2% | 93.2–97.1% | 92–98% | PASS |
-| Run-in (before day 0) | R3 | next 24 h | 68% | 8700 | 174 | 65.9% | – | 63–73% | too few data yet |
-| Run-in (before day 0) | R4 | next 24 h | 95% | 8700 | 174 | 96.4% | – | 92–98% | too few data yet |
+| Run-in (before day 0) | R1 | next 1 h | 68% | 9900 | 198 | 69.4% | 65.3–73.4% | 63–73% | inconclusive |
+| Run-in (before day 0) | R2 | next 1 h | 95% | 9900 | 198 | 95.2% | 93.2–97.1% | 92–98% | PASS |
+| Run-in (before day 0) | R3 | next 24 h | 68% | 8750 | 175 | 65.6% | – | 63–73% | too few data yet |
+| Run-in (before day 0) | R4 | next 24 h | 95% | 8750 | 175 | 96.4% | – | 92–98% | too few data yet |
 
 Information only, not investment advice.
