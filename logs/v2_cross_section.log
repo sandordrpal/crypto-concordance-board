@@ -1,0 +1,19 @@
+version 2 inputs: 74 of 75 sources ok
+ranking: 22 / 33 / 41 characteristics in F0 / F1 / F2
+F0-ridge     IC +0.0789 (t 3.94) top Sharpe 0.55 EW Sharpe 0.59 excess t -0.95
+F0-xgboost   IC +0.0862 (t 5.70) top Sharpe 0.46 EW Sharpe 0.59 excess t -1.33
+momentum_4w  IC -0.0234 (t -1.67) top Sharpe 0.65 EW Sharpe 0.59 excess t 0.51
+F1-ridge     IC +0.0740 (t 3.76) top Sharpe 0.49 EW Sharpe 0.59 excess t -1.14
+F1-xgboost   IC +0.0807 (t 5.38) top Sharpe 0.54 EW Sharpe 0.59 excess t -0.84
+F2-ridge     IC +0.0816 (t 4.23) top Sharpe 0.45 EW Sharpe 0.59 excess t -1.26
+F2-xgboost   IC +0.0815 (t 5.46) top Sharpe 0.61 EW Sharpe 0.59 excess t -0.55
+[ranking] F1 vs F0 (ridge)             DM -1.11 p 0.2655 Holm 1.0000
+[ranking] F2 vs F0 (ridge)             DM 0.51 p 0.6081 Holm 1.0000
+[ranking] F2 vs F1 (ridge)             DM 1.48 p 0.1380 Holm 1.0000
+[ranking] F1 vs F0 (xgboost)           DM -1.04 p 0.2975 Holm 1.0000
+[ranking] F2 vs F0 (xgboost)           DM -0.66 p 0.5076 Holm 1.0000
+[ranking] F2 vs F1 (xgboost)           DM 0.13 p 0.8967 Holm 1.0000
+[ranking] xgboost vs ridge (F0)        DM 0.69 p 0.4922 Holm 1.0000
+[ranking] xgboost vs ridge (F1)        DM 0.63 p 0.5272 Holm 1.0000
+[ranking] xgboost vs ridge (F2)        DM -0.01 p 0.9903 Holm 1.0000
+runtime 1.4 min

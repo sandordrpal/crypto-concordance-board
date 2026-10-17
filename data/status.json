@@ -1,0 +1,470 @@
+{
+ "collected_utc": "2026-10-17T07:14:09+00:00",
+ "series": {
+  "btc": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "Bitcoin price, USD (Yahoo, daily close 00:00 UTC)",
+   "rows": 4413,
+   "first": "2014-09-17",
+   "last": "2026-10-17"
+  },
+  "btc_volume": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "count",
+   "lag_days": 0,
+   "description": "Bitcoin traded volume, USD",
+   "rows": 4413,
+   "first": "2014-09-17",
+   "last": "2026-10-17"
+  },
+  "eth": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "Ether price, USD",
+   "rows": 3264,
+   "first": "2017-11-09",
+   "last": "2026-10-17"
+  },
+  "sp500": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "S&P 500 index",
+   "rows": 3469,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "nasdaq": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "Nasdaq Composite index",
+   "rows": 3469,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "vix": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "level",
+   "lag_days": 0,
+   "description": "CBOE VIX equity volatility index",
+   "rows": 3471,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "move": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "level",
+   "lag_days": 0,
+   "description": "ICE BofA MOVE bond volatility index",
+   "rows": 3395,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "dxy": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "US dollar index",
+   "rows": 3470,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "gold": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "Gold futures",
+   "rows": 3469,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "oil": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "WTI crude oil futures",
+   "rows": 3469,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "ust10y_yahoo": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "level",
+   "lag_days": 0,
+   "description": "US 10-year Treasury yield (Yahoo)",
+   "rows": 3468,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "mstr": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "MicroStrategy / Strategy share price",
+   "rows": 3469,
+   "first": "2013-01-02",
+   "last": "2026-10-16"
+  },
+  "coin": {
+   "status": "ok",
+   "source": "Yahoo Finance",
+   "kind": "price",
+   "lag_days": 0,
+   "description": "Coinbase share price",
+   "rows": 1385,
+   "first": "2021-04-14",
+   "last": "2026-10-16"
+  },
+  "cm_price": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "price",
+   "lag_days": 1,
+   "description": "Bitcoin reference price, USD (Coin Metrics)",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_mvrv": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Market value to realized value",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_active_addresses": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Active addresses",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_tx_count": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Transactions",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_hashrate": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Hash rate",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_issuance": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Miner issuance, USD",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_exchange_inflow": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Exchange inflow, USD",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_exchange_outflow": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Exchange outflow, USD",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "cm_exchange_supply": {
+   "status": "ok",
+   "source": "Coin Metrics community API",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "BTC held on exchanges",
+   "rows": 5037,
+   "first": "2013-01-01",
+   "last": "2026-10-16"
+  },
+  "fed_funds": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Effective federal funds rate",
+   "rows": 6132,
+   "first": "2010-01-01",
+   "last": "2026-10-15"
+  },
+  "ust2y": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "US 2-year Treasury yield",
+   "rows": 4199,
+   "first": "2010-01-04",
+   "last": "2026-10-15"
+  },
+  "ust10y": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "US 10-year Treasury yield",
+   "rows": 4199,
+   "first": "2010-01-04",
+   "last": "2026-10-15"
+  },
+  "curve_10y2y": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "10-year minus 2-year Treasury spread",
+   "rows": 4200,
+   "first": "2010-01-04",
+   "last": "2026-10-16"
+  },
+  "breakeven5y": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "5-year breakeven inflation",
+   "rows": 4200,
+   "first": "2010-01-04",
+   "last": "2026-10-16"
+  },
+  "hy_spread": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "US high-yield credit spread",
+   "rows": 786,
+   "first": "2023-10-17",
+   "last": "2026-10-15"
+  },
+  "usd_broad": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "price",
+   "lag_days": 1,
+   "description": "Broad trade-weighted US dollar",
+   "rows": 4177,
+   "first": "2010-01-04",
+   "last": "2026-10-09"
+  },
+  "reverse_repo": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Fed overnight reverse repo",
+   "rows": 3274,
+   "first": "2010-08-12",
+   "last": "2026-10-16"
+  },
+  "fed_balance_sheet": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "count",
+   "lag_days": 2,
+   "description": "Fed total assets (weekly)",
+   "rows": 876,
+   "first": "2010-01-06",
+   "last": "2026-10-14"
+  },
+  "treasury_account": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "count",
+   "lag_days": 2,
+   "description": "US Treasury General Account (weekly)",
+   "rows": 876,
+   "first": "2010-01-06",
+   "last": "2026-10-14"
+  },
+  "m2": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "count",
+   "lag_days": 60,
+   "description": "US M2 money supply (monthly)",
+   "rows": 200,
+   "first": "2010-01-01",
+   "last": "2026-08-01"
+  },
+  "epu_us": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "US Economic Policy Uncertainty, news-based (daily)",
+   "rows": 6132,
+   "first": "2010-01-01",
+   "last": "2026-10-15"
+  },
+  "emu_us": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Equity market uncertainty, news-based (daily)",
+   "rows": 6132,
+   "first": "2010-01-01",
+   "last": "2026-10-15"
+  },
+  "fin_conditions": {
+   "status": "ok",
+   "source": "FRED (St. Louis Fed)",
+   "kind": "level",
+   "lag_days": 7,
+   "description": "Chicago Fed financial conditions (weekly)",
+   "rows": 876,
+   "first": "2010-01-01",
+   "last": "2026-10-09"
+  },
+  "fear_greed": {
+   "status": "ok",
+   "source": "alternative.me",
+   "kind": "level",
+   "lag_days": 0,
+   "description": "Crypto Fear & Greed Index",
+   "rows": 3177,
+   "first": "2018-02-01",
+   "last": "2026-10-17"
+  },
+  "gpr": {
+   "status": "ok",
+   "source": "Caldara & Iacoviello GPR",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Geopolitical risk index, news-based (daily)",
+   "rows": 6130,
+   "first": "2010-01-01",
+   "last": "2026-10-13"
+  },
+  "gpr_acts": {
+   "status": "ok",
+   "source": "Caldara & Iacoviello GPR",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Geopolitical acts index (daily)",
+   "rows": 6130,
+   "first": "2010-01-01",
+   "last": "2026-10-13"
+  },
+  "gpr_threats": {
+   "status": "ok",
+   "source": "Caldara & Iacoviello GPR",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Geopolitical threats index (daily)",
+   "rows": 6130,
+   "first": "2010-01-01",
+   "last": "2026-10-13"
+  },
+  "wiki_bitcoin": {
+   "status": "ok",
+   "source": "Wikimedia pageviews",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "English Wikipedia views of 'Bitcoin'",
+   "rows": 4125,
+   "first": "2015-07-01",
+   "last": "2026-10-15"
+  },
+  "wiki_crypto": {
+   "status": "ok",
+   "source": "Wikimedia pageviews",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "English Wikipedia views of 'Cryptocurrency'",
+   "rows": 4125,
+   "first": "2015-07-01",
+   "last": "2026-10-15"
+  },
+  "stablecoin_supply": {
+   "status": "ok",
+   "source": "DefiLlama",
+   "kind": "count",
+   "lag_days": 1,
+   "description": "Total USD stablecoin supply",
+   "rows": 3245,
+   "first": "2017-11-29",
+   "last": "2026-10-17"
+  },
+  "news_tone_bitcoin": {
+   "status": "ok",
+   "source": "GDELT 2.0 DOC API",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Average tone of world news mentioning bitcoin",
+   "rows": 3536,
+   "first": "2017-01-01",
+   "last": "2026-10-17"
+  },
+  "news_volume_bitcoin": {
+   "status": "error",
+   "source": "GDELT",
+   "error": "RuntimeError: GDELT rate limit persisted"
+  },
+  "news_tone_macro": {
+   "status": "ok",
+   "source": "GDELT 2.0 DOC API",
+   "kind": "level",
+   "lag_days": 1,
+   "description": "Average tone of world news on inflation, recession, rates and tariffs",
+   "rows": 3536,
+   "first": "2017-01-01",
+   "last": "2026-10-17"
+  },
+  "news_tone_conflict": {
+   "status": "error",
+   "source": "GDELT",
+   "error": "RuntimeError: GDELT rate limit persisted"
+  },
+  "funding_rate": {
+   "status": "error",
+   "source": "Binance or BitMEX",
+   "error": "RuntimeError: binance: Binance HTTP 451; bitmex: BitMEX HTTP 403"
+  }
+ }
+}

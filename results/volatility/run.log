@@ -1,0 +1,21 @@
+daily panel 2017-08-18..2026-10-16 · 21 features (11 news/macro/sentiment)
+[v1] har done in 2s
+[v1] har_ext done in 2s
+[v1] ridge done in 28s
+[v1] xgboost done in 35s
+[v1] gru done in 665s
+[v1] har      QLIKE 0.4127 ratio vs HAR 1.000 DM p nan
+[v1] har_ext  QLIKE 0.4107 ratio vs HAR 0.995 DM p 0.6028169276282898
+[v1] ridge    QLIKE 0.3663 ratio vs HAR 0.888 DM p 2.101804286169795e-09
+[v1] xgboost  QLIKE 0.3552 ratio vs HAR 0.861 DM p 6.589521681199528e-06
+[v1] gru      QLIKE 0.3584 ratio vs HAR 0.869 DM p 1.1376043159261329e-05
+[v7] har done in 2s
+[v7] har_ext done in 2s
+[v7] ridge done in 28s
+[v7] xgboost done in 21s
+[v7] gru done in 310s
+[v7] har      QLIKE 0.1950 ratio vs HAR 1.000 DM p nan
+[v7] har_ext  QLIKE 0.1930 ratio vs HAR 0.990 DM p 0.1765288970894936
+[v7] ridge    QLIKE 0.1970 ratio vs HAR 1.010 DM p 0.8393399451290366
+[v7] xgboost  QLIKE 0.2050 ratio vs HAR 1.051 DM p 0.36319431709722005
+[v7] gru      QLIKE 0.2031 ratio vs HAR 1.041 DM p 0.3711210591167171
