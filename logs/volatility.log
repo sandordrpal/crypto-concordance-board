@@ -1,0 +1,23 @@
+/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/vol.py:52: Pandas4Warning: Series.dt.dayofweek is deprecated and will be removed in a future version. Use Series.dt.day_of_week instead.
+  F["next_is_weekend"] = (pd.Series(d.index + pd.Timedelta(days=1), index=d.index).dt.dayofweek >= 5).astype(float)
+daily panel 2017-08-18..2026-10-23 · 22 features (12 news/macro/sentiment)
+[v1] har done in 1s
+[v1] har_ext done in 1s
+[v1] ridge done in 31s
+[v1] xgboost done in 34s
+[v1] gru done in 594s
+[v1] har      QLIKE 0.4121 ratio vs HAR 1.000 DM p nan
+[v1] har_ext  QLIKE 0.4101 ratio vs HAR 0.995 DM p 0.6035756771462513
+[v1] ridge    QLIKE 0.3659 ratio vs HAR 0.888 DM p 2.0564032698899837e-09
+[v1] xgboost  QLIKE 0.3583 ratio vs HAR 0.870 DM p 3.864029995970242e-05
+[v1] gru      QLIKE 0.3705 ratio vs HAR 0.899 DM p 0.001849666251616311
+[v7] har done in 1s
+[v7] har_ext done in 1s
+[v7] ridge done in 31s
+[v7] xgboost done in 22s
+[v7] gru done in 315s
+[v7] har      QLIKE 0.1947 ratio vs HAR 1.000 DM p nan
+[v7] har_ext  QLIKE 0.1927 ratio vs HAR 0.990 DM p 0.17599296990466273
+[v7] ridge    QLIKE 0.1955 ratio vs HAR 1.004 DM p 0.9283071872408368
+[v7] xgboost  QLIKE 0.2051 ratio vs HAR 1.053 DM p 0.3523600758926748
+[v7] gru      QLIKE 0.2174 ratio vs HAR 1.117 DM p 0.03734667021903526

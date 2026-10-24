@@ -1,0 +1,48 @@
+# Track C: Bitcoin intraday order flow
+
+Hourly Binance candles 2017-08-17 to 2026-10-23 · 35 features (taker buy/sell imbalance for Bitcoin, Ether and a 66-coin altcoin basket, returns, volume, volatility, time of day) · yearly walk-forward 2021–2026 · runtime 1.4 min
+
+R²oos compares each forecast with the random walk (0 = equal). Hit is the share of hours where the forecast had the right sign.
+
+## Next 1 hour
+
+| Model | R²oos | Hit rate | DM p | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|---|---|---|---|---|
+| zero | **+0.000%** | – | – | +0.00% | +0.00% | +0.00% | +0.00% | +0.00% | +0.00% |
+| ridge | **-0.045%** | 51.5% | 0.328 | -0.12% | -0.02% | -0.00% | +0.02% | -0.01% | +0.02% |
+| xgboost | **-0.067%** | 50.1% | 0.686 | -0.08% | -0.14% | +0.02% | +0.21% | -0.31% | -0.10% |
+
+## Next 4 hours
+
+| Model | R²oos | Hit rate | DM p | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|---|---|---|---|---|
+| zero | **+0.000%** | – | – | +0.00% | +0.00% | +0.00% | +0.00% | +0.00% | +0.00% |
+| ridge | **-0.001%** | 50.7% | 0.967 | +0.00% | -0.06% | +0.01% | +0.07% | -0.03% | +0.04% |
+| xgboost | **+0.042%** | 49.9% | 0.761 | +0.27% | -0.05% | +0.10% | -0.18% | -0.40% | +0.08% |
+| gru | **-0.070%** | 50.8% | 0.638 | +0.23% | -0.26% | -0.45% | -0.07% | -0.41% | -0.13% |
+
+## Next 12 hours
+
+| Model | R²oos | Hit rate | DM p | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|---|---|---|---|---|
+| zero | **+0.000%** | – | – | +0.00% | +0.00% | +0.00% | +0.00% | +0.00% | +0.00% |
+| ridge | **+0.218%** | 50.4% | 0.272 | +0.46% | +0.04% | +0.11% | +0.16% | -0.03% | +0.09% |
+| xgboost | **-0.513%** | 50.6% | 0.178 | +0.92% | -3.08% | +0.16% | -1.11% | -0.32% | -0.26% |
+
+## Trading the 4-hour forecast after costs
+
+Decisions every 4 hours. Long/flat: buy when the forecast exceeds the 0.20% round-trip cost, hold while it stays positive. Long/short is shown for information only (no funding or borrowing costs).
+
+| Strategy | Annual return | Sharpe | Max drawdown | Time invested | Trades/year | Positive years | Long/short Sharpe |
+|---|---|---|---|---|---|---|---|
+| buy and hold | +19.4% | 0.60 | -77% | 100% | – | 3/6 | – |
+| ridge | +0.0% | – | +0% | 0% | 0 | 0/6 | – |
+| xgboost | +4.8% | 0.46 | -24% | 1% | 12 | 4/6 | -0.14 |
+| gru | +6.0% | 0.43 | -33% | 6% | 71 | 4/6 | 0.05 |
+
+## Scorecard
+
+| ID | Outcome | Result | Pass |
+|---|---|---|---|
+| C1 | Next-4-hour Bitcoin return | best xgboost: R²oos +0.04%, hit 49.9%, DM p 0.761 | fail |
+| C2 | Cost-aware long/flat on the 4-hour forecast | best xgboost: net Sharpe 0.46 vs 0.60 buy-and-hold, positive in 4 of 6 years | fail |
