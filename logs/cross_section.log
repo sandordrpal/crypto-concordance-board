@@ -1,0 +1,7 @@
+/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/xsec.py:77: Pandas4Warning: DatetimeIndex.dayofweek is deprecated and will be removed in a future version. Use DatetimeIndex.day_of_week instead.
+  sundays = C.index[C.index.dayofweek == 6]
+68 coins · 420 weekly formations · 17911 coin-weeks · 22 characteristics
+momentum_4w  IC -0.0279 (t -2.26) top Sharpe 0.72 EW Sharpe 0.71 excess t 0.21
+ridge        IC +0.0725 (t 4.77) top Sharpe 0.66 EW Sharpe 0.71 excess t -0.99
+xgboost      IC +0.0836 (t 6.90) top Sharpe 0.81 EW Sharpe 0.71 excess t 0.16
+mlp          IC +0.0743 (t 6.80) top Sharpe 0.71 EW Sharpe 0.71 excess t -0.52

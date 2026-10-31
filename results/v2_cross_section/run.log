@@ -1,0 +1,12 @@
+version 2 inputs: 75 of 75 sources ok
+ranking: 22 / 33 / 41 characteristics in F0 / F1 / F2
+[ranking] F1 vs F0 (ridge)             DM -1.07 p 0.2832 Holm 1.0000
+[ranking] F2 vs F0 (ridge)             DM 0.53 p 0.5950 Holm 1.0000
+[ranking] F2 vs F1 (ridge)             DM 1.47 p 0.1422 Holm 1.0000
+[ranking] F1 vs F0 (xgboost)           DM -0.85 p 0.3949 Holm 1.0000
+[ranking] F2 vs F0 (xgboost)           DM -0.56 p 0.5772 Holm 1.0000
+[ranking] F2 vs F1 (xgboost)           DM 0.13 p 0.8938 Holm 1.0000
+[ranking] xgboost vs ridge (F0)        DM 0.71 p 0.4774 Holm 1.0000
+[ranking] xgboost vs ridge (F1)        DM 0.73 p 0.4668 Holm 1.0000
+[ranking] xgboost vs ridge (F2)        DM 0.08 p 0.9377 Holm 1.0000
+runtime 1.2 min
