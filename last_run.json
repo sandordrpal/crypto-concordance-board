@@ -1,8 +1,8 @@
 {
- "run_utc": "2026-11-03 01:02:20.453565",
+ "run_utc": "2026-11-03 02:02:18.848383",
  "errors": {},
- "issued": 100,
- "scored": 150,
+ "issued": 50,
+ "scored": 100,
  "coins_with_data": 50,
  "sources": [
   "https://data-api.binance.vision"
