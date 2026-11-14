@@ -1,0 +1,549 @@
+{
+ "collected_utc": "2026-11-14T09:15:37+00:00",
+ "symbols": {
+  "TRXUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 73774,
+   "first": "2018-06-11 11:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 6.1
+  },
+  "SOLUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54839,
+   "first": "2020-08-11 06:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 7.7
+  },
+  "XRPUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 74689,
+   "first": "2018-05-04 08:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 7.8
+  },
+  "BNBUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 78957,
+   "first": "2017-11-06 03:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 8.4
+  },
+  "ADAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 75101,
+   "first": "2018-04-17 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 8.4
+  },
+  "DOGEUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 64481,
+   "first": "2019-07-05 12:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 8.5
+  },
+  "ETHUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 80893,
+   "first": "2017-08-17 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 8.7
+  },
+  "BTCUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 80893,
+   "first": "2017-08-17 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 8.8
+  },
+  "LINKUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 68547,
+   "first": "2019-01-16 10:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.8
+  },
+  "AVAXUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 53831,
+   "first": "2020-09-22 06:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.1
+  },
+  "SUIUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 30972,
+   "first": "2023-05-03 12:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.2
+  },
+  "BCHUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 60991,
+   "first": "2019-11-28 10:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.6
+  },
+  "HBARUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 62433,
+   "first": "2019-09-29 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 6.5
+  },
+  "LTCUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 78069,
+   "first": "2017-12-13 03:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 6.6
+  },
+  "XLMUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 74040,
+   "first": "2018-05-31 09:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 7.0
+  },
+  "SHIBUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 48318,
+   "first": "2021-05-10 11:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.5
+  },
+  "UNIUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 53954,
+   "first": "2020-09-17 03:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.6
+  },
+  "DOTUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54654,
+   "first": "2020-08-18 23:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.9
+  },
+  "AAVEUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 53282,
+   "first": "2020-10-15 03:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.3
+  },
+  "NEARUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 53304,
+   "first": "2020-10-14 05:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.2
+  },
+  "PEPEUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 30918,
+   "first": "2023-05-05 18:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.0
+  },
+  "TAOUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 22716,
+   "first": "2024-04-11 12:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.0
+  },
+  "APTUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 35686,
+   "first": "2022-10-19 01:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.5
+  },
+  "ICPUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 48304,
+   "first": "2021-05-11 01:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.6
+  },
+  "ONDOUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 13954,
+   "first": "2025-04-11 14:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.5
+  },
+  "ETCUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 73769,
+   "first": "2018-06-12 02:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.6
+  },
+  "ENAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 22936,
+   "first": "2024-04-02 08:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.7
+  },
+  "POLUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 18998,
+   "first": "2024-09-13 10:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.0
+  },
+  "ARBUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 31952,
+   "first": "2023-03-23 15:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.2
+  },
+  "ATOMUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 66087,
+   "first": "2019-04-29 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.8
+  },
+  "RENDERUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 20176,
+   "first": "2024-07-26 08:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.9
+  },
+  "ALGOUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 64805,
+   "first": "2019-06-22 00:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 6.1
+  },
+  "FILUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 53268,
+   "first": "2020-10-15 17:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.0
+  },
+  "OPUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 39039,
+   "first": "2022-06-01 08:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.8
+  },
+  "WLDUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 29007,
+   "first": "2023-07-24 09:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.4
+  },
+  "VETUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 72743,
+   "first": "2018-07-25 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.8
+  },
+  "TIAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 26624,
+   "first": "2023-10-31 16:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.7
+  },
+  "SEIUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 28476,
+   "first": "2023-08-15 12:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.4
+  },
+  "INJUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 53137,
+   "first": "2020-10-21 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.8
+  },
+  "BONKUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 25552,
+   "first": "2023-12-15 08:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.6
+  },
+  "FETUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 67515,
+   "first": "2019-02-28 10:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.9
+  },
+  "JUPUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 24416,
+   "first": "2024-01-31 16:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.9
+  },
+  "STXUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 61809,
+   "first": "2019-10-25 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.6
+  },
+  "GRTUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 51754,
+   "first": "2020-12-17 20:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.0
+  },
+  "LDOUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 39588,
+   "first": "2022-05-09 11:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.9
+  },
+  "IMXUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 42445,
+   "first": "2022-01-10 10:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.5
+  },
+  "CRVUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54745,
+   "first": "2020-08-15 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.0
+  },
+  "WIFUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 23602,
+   "first": "2024-03-05 14:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.3
+  },
+  "ZECUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 67023,
+   "first": "2019-03-21 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.6
+  },
+  "QNTUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 46403,
+   "first": "2021-07-29 06:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.2
+  },
+  "TRUMPUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 15928,
+   "first": "2025-01-19 08:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.3
+  },
+  "PENGUUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 16714,
+   "first": "2024-12-17 14:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.6
+  },
+  "PYTHUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 24372,
+   "first": "2024-02-02 12:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 4.6
+  },
+  "FLOKIUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 30918,
+   "first": "2023-05-05 18:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.3
+  },
+  "THETAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 66543,
+   "first": "2019-04-10 04:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.3
+  },
+  "XTZUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 62546,
+   "first": "2019-09-24 11:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 6.2
+  },
+  "SANDUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54760,
+   "first": "2020-08-14 13:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.9
+  },
+  "RUNEUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54263,
+   "first": "2020-09-04 06:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.4
+  },
+  "GALAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 45303,
+   "first": "2021-09-13 06:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.5
+  },
+  "MANAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54955,
+   "first": "2020-08-06 10:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.6
+  },
+  "CAKEUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 50237,
+   "first": "2021-02-19 06:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.5
+  },
+  "EGLDUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 54290,
+   "first": "2020-09-03 03:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.4
+  },
+  "IOTAUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 74040,
+   "first": "2018-05-31 09:00:00",
+   "last": "2026-11-13 23:00:00",
+   "seconds": 5.5
+  },
+  "TONUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 16577,
+   "first": "2024-08-08 10:00:00",
+   "last": "2026-06-30 02:00:00",
+   "seconds": 44.6
+  },
+  "EOSUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 61231,
+   "first": "2018-05-28 05:00:00",
+   "last": "2025-05-26 02:00:00",
+   "seconds": 178.6
+  },
+  "FTMUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 48988,
+   "first": "2019-06-11 04:00:00",
+   "last": "2025-01-13 02:00:00",
+   "seconds": 208.2
+  },
+  "MATICUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 47071,
+   "first": "2019-04-26 15:00:00",
+   "last": "2024-09-10 02:00:00",
+   "seconds": 255.0
+  },
+  "XMRUSDT": {
+   "status": "ok",
+   "source": "binance",
+   "rows": 43218,
+   "first": "2019-03-15 04:00:00",
+   "last": "2024-02-20 02:00:00",
+   "seconds": 336.0
+  }
+ }
+}

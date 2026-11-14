@@ -1,0 +1,69 @@
+/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py:179: Pandas4Warning: The xlrd engine is deprecated and will be removed in a future version. Use the calamine engine instead, by setting engine='calamine'.
+  df = pd.read_excel(io.BytesIO(r.content))
+Traceback (most recent call last):
+  File "/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py", line 47, in attempt
+    fn()
+  File "/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py", line 236, in one
+    raise RuntimeError("GDELT rate limit persisted")
+RuntimeError: GDELT rate limit persisted
+Traceback (most recent call last):
+  File "/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py", line 47, in attempt
+    fn()
+  File "/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/collect.py", line 303, in one
+    raise RuntimeError("; ".join(errs))
+RuntimeError: binance: Binance HTTP 451; bitmex: BitMEX HTTP 403
+== yahoo
+[ok]   btc (0.6s)
+[ok]   eth (0.3s)
+[ok]   sp500 (0.3s)
+[ok]   nasdaq (0.3s)
+[ok]   vix (0.3s)
+[ok]   move (0.2s)
+[ok]   dxy (0.3s)
+[ok]   gold (0.3s)
+[ok]   oil (0.3s)
+[ok]   ust10y_yahoo (0.3s)
+[ok]   mstr (0.3s)
+[ok]   coin (0.3s)
+== coinmetrics
+[ok]   cm_price (0.6s)
+[ok]   cm_mvrv (0.6s)
+[ok]   cm_active_addresses (0.6s)
+[ok]   cm_tx_count (0.6s)
+[ok]   cm_hashrate (0.6s)
+[ok]   cm_issuance (0.5s)
+[ok]   cm_exchange_inflow (1.0s)
+[ok]   cm_exchange_outflow (0.7s)
+[ok]   cm_exchange_supply (1.0s)
+== fred
+[ok]   fed_funds (0.1s)
+[ok]   ust2y (0.0s)
+[ok]   ust10y (0.1s)
+[ok]   curve_10y2y (0.1s)
+[ok]   breakeven5y (0.0s)
+[ok]   hy_spread (0.0s)
+[ok]   usd_broad (0.0s)
+[ok]   reverse_repo (0.1s)
+[ok]   fed_balance_sheet (0.0s)
+[ok]   treasury_account (0.1s)
+[ok]   m2 (0.0s)
+[ok]   epu_us (0.0s)
+[ok]   emu_us (0.6s)
+[ok]   fin_conditions (0.1s)
+== fear_greed
+[ok]   fear_greed (0.3s)
+== gpr
+[ok]   gpr (1.6s)
+== wikipedia
+[ok]   wiki_bitcoin (0.7s)
+[ok]   wiki_crypto (0.8s)
+== stablecoins
+[ok]   stablecoin_supply (0.1s)
+== gdelt
+[ok]   news_tone_bitcoin (62.9s)
+[fail] news_volume_bitcoin: GDELT rate limit persisted
+[ok]   news_tone_macro (24.1s)
+[ok]   news_tone_conflict (20.6s)
+== funding
+[fail] funding_rate: binance: Binance HTTP 451; bitmex: BitMEX HTTP 403
+collected 46 of 48 series
