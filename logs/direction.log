@@ -1,0 +1,50 @@
+panel 2014-09-17..2026-11-20 · 197 features from 44 series · base btc
+[r1] rows train=1766 val=365 train+val=2131 test=1054 features=189
+[r1] zero         val R2oos=+0.0000 test R2oos=+0.0000 hit=nan gap=+0.0000 dm_p=nan
+[r1] mean         val R2oos=+0.0023 test R2oos=-0.0001 hit=0.499 gap=+0.0004 dm_p=0.9510984130588194
+[r1] ridge        val R2oos=-0.0025 test R2oos=+0.0004 hit=0.503 gap=+0.0046 dm_p=0.8722702571268739
+[r1] poly2        val R2oos=+0.0070 test R2oos=+0.0009 hit=0.491 gap=+0.0469 dm_p=0.8932926033447612
+[r1] xgboost      val R2oos=+0.0037 test R2oos=+0.0008 hit=0.492 gap=+0.0191 dm_p=0.7314793562774822
+[r1] ridge_fixed  val R2oos=-0.7728 test R2oos=-1.3324 hit=0.529 gap=+1.4835 dm_p=0.0
+[r1] poly2_fixed  val R2oos=-0.7998 test R2oos=-0.3087 hit=0.488 gap=+0.4874 dm_p=3.1357350716021415e-08
+[r1] xgb_fixed    val R2oos=-0.1797 test R2oos=-0.0355 hit=0.506 gap=+0.4550 dm_p=0.077078088777637
+[r1] gru          val R2oos=-0.0146 test R2oos=-0.0220 hit=0.505 gap=+0.0581 seeds=['-0.032', '-0.023', '-0.019', '-0.031', '-0.025']
+[r1] gru_fixed    val R2oos=-0.6621 test R2oos=-0.4880 hit=0.519 gap=+0.8421 seeds=['-0.543', '-0.474', '-0.674', '-0.906', '-0.659']
+[r7] rows train=1760 val=365 train+val=2125 test=1048 features=189
+[r7] zero         val R2oos=+0.0000 test R2oos=+0.0000 hit=nan gap=+0.0000 dm_p=nan
+[r7] mean         val R2oos=+0.0124 test R2oos=+0.0004 hit=0.511 gap=+0.0017 dm_p=0.965775283878723
+[r7] ridge        val R2oos=-0.0103 test R2oos=+0.0020 hit=0.510 gap=+0.0217 dm_p=0.8694295275920914
+[r7] poly2        val R2oos=+0.0123 test R2oos=+0.0003 hit=0.511 gap=+0.0048 dm_p=0.9791076557966258
+[r7] xgboost      val R2oos=+0.0157 test R2oos=+0.0034 hit=0.511 gap=+0.0052 dm_p=0.735955043681312
+[r7] ridge_fixed  val R2oos=-1.2315 test R2oos=-4.9165 hit=0.527 gap=+5.4290 dm_p=0.0
+[r7] poly2_fixed  val R2oos=-0.5304 test R2oos=-0.9619 hit=0.431 gap=+1.3917 dm_p=2.319255898441952e-12
+[r7] xgb_fixed    val R2oos=-1.0682 test R2oos=-0.1881 hit=0.508 gap=+0.9481 dm_p=0.00031024573232607544
+[r7] gru          val R2oos=+0.0218 test R2oos=-0.2178 hit=0.500 gap=+0.4518 seeds=['-0.237', '-0.240', '-0.204', '-0.257', '-0.219']
+[r7] gru_fixed    val R2oos=-2.6650 test R2oos=-1.3996 hit=0.468 gap=+2.3117 seeds=['-1.682', '-1.667', '-2.291', '-2.131', '-2.908']
+[r30] rows train=1737 val=365 train+val=2102 test=1025 features=189
+[r30] zero         val R2oos=+0.0000 test R2oos=+0.0000 hit=nan gap=+0.0000 dm_p=nan
+[r30] mean         val R2oos=+0.0666 test R2oos=+0.0107 hit=0.548 gap=+0.0004 dm_p=0.8139098473267286
+[r30] ridge        val R2oos=-0.0263 test R2oos=+0.0037 hit=0.548 gap=+0.0687 dm_p=0.9442287213585174
+[r30] poly2        val R2oos=+0.0661 test R2oos=+0.0106 hit=0.548 gap=+0.0051 dm_p=0.8160848216295156
+[r30] xgboost      val R2oos=+0.0989 test R2oos=-0.0038 hit=0.546 gap=+0.1764 dm_p=0.933580472506605
+[r30] ridge_fixed  val R2oos=-14.1311 test R2oos=-4.9656 hit=0.506 gap=+5.7801 dm_p=3.73639922557345e-07
+[r30] poly2_fixed  val R2oos=-1.4834 test R2oos=-0.7269 hit=0.426 gap=+1.3596 dm_p=2.726219094917326e-08
+[r30] xgb_fixed    val R2oos=-0.7277 test R2oos=-0.2876 hit=0.573 gap=+1.2299 dm_p=0.05912402453312904
+[r30] gru          val R2oos=+0.0976 test R2oos=-0.6462 hit=0.612 gap=+1.4233 seeds=['-0.824', '-0.681', '-0.986', '-0.853', '-0.782']
+[r30] gru_fixed    val R2oos=-0.9517 test R2oos=-1.0328 hit=0.589 gap=+2.0062 seeds=['-1.292', '-1.418', '-1.576', '-1.175', '-1.489']
+[m30] rows train=1737 val=365 train+val=2102 test=1025 features=189
+[m30] zero         val R2oos=+0.0000 test R2oos=+0.0000 hit=nan gap=+0.0000 dm_p=nan
+[m30] mean         val R2oos=+0.0810 test R2oos=+0.0129 hit=0.535 gap=+0.0006 dm_p=0.7841897156619186
+[m30] ridge        val R2oos=+0.0211 test R2oos=+0.0063 hit=0.535 gap=+0.0581 dm_p=0.905880133900062
+[m30] poly2        val R2oos=+0.0803 test R2oos=+0.0131 hit=0.535 gap=+0.0018 dm_p=0.7802670614719753
+[m30] xgboost      val R2oos=+0.0867 test R2oos=+0.0181 hit=0.535 gap=+0.0122 dm_p=0.7101078804247472
+[m30] ridge_fixed  val R2oos=-8.1358 test R2oos=-3.4498 hit=0.540 gap=+4.2577 dm_p=6.837624269007136e-07
+[m30] poly2_fixed  val R2oos=-0.6753 test R2oos=-0.9483 hit=0.420 gap=+1.5519 dm_p=5.071220803287702e-07
+[m30] xgb_fixed    val R2oos=-1.2521 test R2oos=-0.4979 hit=0.565 gap=+1.4337 dm_p=0.021361710231583064
+[m30] gru          val R2oos=+0.1295 test R2oos=-0.7293 hit=0.530 gap=+1.4401 seeds=['-0.910', '-0.725', '-1.010', '-1.032', '-0.737']
+[m30] gru_fixed    val R2oos=-2.1339 test R2oos=-1.5894 hit=0.537 gap=+2.5771 seeds=['-1.827', '-2.065', '-1.740', '-2.148', '-1.712']
+[r1] walk-forward 25 folds: zero +0.0000, mean -0.0010, ridge -0.0059, poly2 -0.0060, xgboost -0.0091
+[r7] walk-forward 25 folds: zero +0.0000, mean -0.0071, ridge -0.0222, poly2 -0.0299, xgboost -0.0828
+[r30] walk-forward 25 folds: zero +0.0000, mean -0.0237, ridge -0.1546, poly2 -0.1418, xgboost -0.2290
+[m30] walk-forward 25 folds: zero +0.0000, mean -0.0132, ridge -0.0679, poly2 -0.0891, xgboost -0.1935
+done in 1219s

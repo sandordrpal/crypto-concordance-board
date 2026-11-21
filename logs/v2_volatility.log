@@ -1,0 +1,42 @@
+version 2 inputs: 75 of 75 sources ok
+/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/v2.py:231: Pandas4Warning: Starting with pandas version 4.0 all arguments of mean will be keyword-only.
+  X["xvol_alt"] = A.mean(1).where(A.notna().sum(1) >= 5)
+/home/runner/work/crypto-concordance-board/crypto-concordance-board/research/v2.py:231: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+  X["xvol_alt"] = A.mean(1).where(A.notna().sum(1) >= 5)
+volatility: 23 / 27 / 47 inputs in F0 / F1 / F2
+[v1] har done in 1s
+[v1] ridge done in 13s
+[v1] xgboost done in 21s
+[v1] ridge done in 14s
+[v1] xgboost done in 29s
+[v1] ridge done in 25s
+[v1] xgboost done in 42s
+[v1] F0-ridge     QLIKE 0.3895 = 0.881x HAR, p 0.0000
+[v1] F0-xgboost   QLIKE 0.3662 = 0.828x HAR, p 0.0001
+[v1] F1-ridge     QLIKE 0.3900 = 0.882x HAR, p 0.0000
+[v1] F1-xgboost   QLIKE 0.3675 = 0.831x HAR, p 0.0000
+[v1] F2-ridge     QLIKE 0.3977 = 0.899x HAR, p 0.0005
+[v1] F2-xgboost   QLIKE 0.3693 = 0.835x HAR, p 0.0001
+[volatility] F1 vs F0 (ridge)             DM -0.11 p 0.9155 Holm 1.0000
+[volatility] F2 vs F0 (ridge)             DM -1.27 p 0.2049 Holm 1.0000
+[volatility] F2 vs F1 (ridge)             DM -1.64 p 0.1014 Holm 0.6084
+[volatility] F1 vs F0 (xgboost)           DM -0.22 p 0.8273 Holm 1.0000
+[volatility] F2 vs F0 (xgboost)           DM -0.50 p 0.6171 Holm 1.0000
+[volatility] F2 vs F1 (xgboost)           DM -0.34 p 0.7347 Holm 1.0000
+[volatility] xgboost vs ridge (F0)        DM 1.76 p 0.0790 Holm 0.5531
+[volatility] xgboost vs ridge (F1)        DM 2.22 p 0.0265 Holm 0.2120
+[volatility] xgboost vs ridge (F2)        DM 2.37 p 0.0179 Holm 0.1612
+[v7] har done in 1s
+[v7] ridge done in 13s
+[v7] xgboost done in 12s
+[v7] ridge done in 14s
+[v7] xgboost done in 15s
+[v7] ridge done in 24s
+[v7] xgboost done in 23s
+[v7] F0-ridge     QLIKE 0.1666 = 0.913x HAR, p 0.0732
+[v7] F0-xgboost   QLIKE 0.1777 = 0.974x HAR, p 0.6923
+[v7] F1-ridge     QLIKE 0.1684 = 0.923x HAR, p 0.1056
+[v7] F1-xgboost   QLIKE 0.1753 = 0.961x HAR, p 0.5566
+[v7] F2-ridge     QLIKE 0.1754 = 0.961x HAR, p 0.3994
+[v7] F2-xgboost   QLIKE 0.1820 = 0.997x HAR, p 0.9708
+runtime 4.2 min
