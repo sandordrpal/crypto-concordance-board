@@ -1,19 +1,19 @@
 # Live calibration of the board's typical-move ranges
 
-Updated 2026-11-22 14:02 UTC. Rules and pass bands are fixed in [LIVE_TEST.md](https://github.com/sandordrpal/crypto-concordance-board/blob/main/research/LIVE_TEST.md) (R1-R4). Primary analysis: on-time forecasts from 2026-10-19; earlier rows are a run-in.
+Updated 2026-11-22 15:02 UTC. Rules and pass bands are fixed in [LIVE_TEST.md](https://github.com/sandordrpal/crypto-concordance-board/blob/main/research/LIVE_TEST.md) (R1-R4). Primary analysis: on-time forecasts from 2026-10-19; earlier rows are a run-in.
 
 Coverage is the share of real moves that stayed inside the range. Confidence intervals (90%) are clustered by issue hour, because coins move together. PASS when the whole interval lies inside the band.
 
 | Sample | Test | Horizon | Claimed | Forecasts | Issue hours | Coverage | 90% CI | Pass band | Verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| Primary (on time, from day 0) | R1 | next 1 h | 68% | 41800 | 829 | 68.1% | 65.7–70.4% | 63–73% | PASS |
-| Primary (on time, from day 0) | R2 | next 1 h | 95% | 41800 | 829 | 94.9% | 93.7–96.0% | 92–98% | PASS |
-| Primary (on time, from day 0) | R3 | next 24 h | 68% | 40650 | 806 | 69.0% | 62.4–75.6% | 63–73% | inconclusive |
-| Primary (on time, from day 0) | R4 | next 24 h | 95% | 40650 | 806 | 93.4% | 90.2–96.6% | 92–98% | inconclusive |
-| All rows from day 0, including back-filled | R1 | next 1 h | 68% | 43650 | 830 | 68.1% | 65.7–70.4% | 63–73% | PASS |
-| All rows from day 0, including back-filled | R2 | next 1 h | 95% | 43650 | 830 | 94.9% | 93.7–96.0% | 92–98% | PASS |
-| All rows from day 0, including back-filled | R3 | next 24 h | 68% | 42450 | 807 | 69.0% | 62.5–75.6% | 63–73% | inconclusive |
-| All rows from day 0, including back-filled | R4 | next 24 h | 95% | 42450 | 807 | 93.4% | 90.2–96.6% | 92–98% | inconclusive |
+| Primary (on time, from day 0) | R1 | next 1 h | 68% | 41850 | 830 | 68.1% | 65.7–70.4% | 63–73% | PASS |
+| Primary (on time, from day 0) | R2 | next 1 h | 95% | 41850 | 830 | 94.9% | 93.7–96.0% | 92–98% | PASS |
+| Primary (on time, from day 0) | R3 | next 24 h | 68% | 40700 | 807 | 69.1% | 62.5–75.7% | 63–73% | inconclusive |
+| Primary (on time, from day 0) | R4 | next 24 h | 95% | 40700 | 807 | 93.4% | 90.2–96.6% | 92–98% | inconclusive |
+| All rows from day 0, including back-filled | R1 | next 1 h | 68% | 43700 | 831 | 68.1% | 65.7–70.5% | 63–73% | PASS |
+| All rows from day 0, including back-filled | R2 | next 1 h | 95% | 43700 | 831 | 94.9% | 93.7–96.0% | 92–98% | PASS |
+| All rows from day 0, including back-filled | R3 | next 24 h | 68% | 42500 | 808 | 69.1% | 62.5–75.6% | 63–73% | inconclusive |
+| All rows from day 0, including back-filled | R4 | next 24 h | 95% | 42500 | 808 | 93.4% | 90.2–96.6% | 92–98% | inconclusive |
 | Run-in (before day 0) | R1 | next 1 h | 68% | 14250 | 281 | 71.0% | 67.6–74.5% | 63–73% | inconclusive |
 | Run-in (before day 0) | R2 | next 1 h | 95% | 14250 | 281 | 95.2% | 93.6–96.8% | 92–98% | PASS |
 | Run-in (before day 0) | R3 | next 24 h | 68% | 14250 | 281 | 72.1% | – | 63–73% | too few data yet |
@@ -23,15 +23,15 @@ Coins furthest from the 68% claim on the 24-hour range (primary sample):
 
 | Coin | Coverage | Forecasts |
 |---|---|---|
-| BTC | 54% | 813 |
-| ETH | 56% | 813 |
-| TRX | 58% | 813 |
-| BNB | 58% | 813 |
-| UNI | 60% | 813 |
-| WLD | 76% | 813 |
-| FET | 76% | 813 |
-| TIA | 77% | 813 |
-| FIL | 77% | 813 |
-| DOT | 77% | 813 |
+| BTC | 54% | 814 |
+| ETH | 56% | 814 |
+| TRX | 58% | 814 |
+| BNB | 58% | 814 |
+| UNI | 60% | 814 |
+| WLD | 76% | 814 |
+| FET | 76% | 814 |
+| TIA | 77% | 814 |
+| FIL | 78% | 814 |
+| DOT | 78% | 814 |
 
 Information only, not investment advice.
