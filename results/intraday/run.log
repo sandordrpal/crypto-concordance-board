@@ -1,0 +1,29 @@
+hourly panel 2017-08-17 04:00:00..2026-11-27 23:00:00 · 35 features · order flow yes · 66 altcoins in basket
+[y1] 2021: fit 26259 rows, test 8760, ridge alpha 31623, 2s
+[y1] 2022: fit 35019 rows, test 8760, ridge alpha 1000000, 1s
+[y1] 2023: fit 43779 rows, test 8760, ridge alpha 316228, 1s
+[y1] 2024: fit 52539 rows, test 8784, ridge alpha 1000000, 2s
+[y1] 2025: fit 61323 rows, test 8760, ridge alpha 316228, 3s
+[y1] 2026: fit 70083 rows, test 7943, ridge alpha 1000000, 2s
+[y1] zero     R2oos +0.00000 hit nan DM p nan
+[y1] ridge    R2oos -0.00044 hit 0.5138 DM p 0.3256021380260097
+[y1] xgboost  R2oos -0.00064 hit 0.5003 DM p 0.694108963221785
+[y4] 2021: fit 26246 rows, test 8760, ridge alpha 1000000, 12s
+[y4] 2022: fit 35006 rows, test 8760, ridge alpha 316228, 10s
+[y4] 2023: fit 43766 rows, test 8760, ridge alpha 1000000, 15s
+[y4] 2024: fit 52526 rows, test 8784, ridge alpha 1000000, 15s
+[y4] 2025: fit 61310 rows, test 8760, ridge alpha 316228, 17s
+[y4] 2026: fit 70070 rows, test 7940, ridge alpha 1000000, 16s
+[y4] zero     R2oos +0.00000 hit nan DM p nan
+[y4] ridge    R2oos -0.00003 hit 0.5065 DM p 0.8404643979150086
+[y4] xgboost  R2oos +0.00037 hit 0.4984 DM p 0.7879733483268316
+[y4] gru      R2oos -0.00085 hit 0.5075 DM p 0.5649614627518464
+[y12] 2021: fit 26230 rows, test 8760, ridge alpha 10000, 1s
+[y12] 2022: fit 34990 rows, test 8760, ridge alpha 100000, 2s
+[y12] 2023: fit 43750 rows, test 8760, ridge alpha 1000000, 1s
+[y12] 2024: fit 52510 rows, test 8784, ridge alpha 31623, 2s
+[y12] 2025: fit 61294 rows, test 8760, ridge alpha 1000000, 2s
+[y12] 2026: fit 70054 rows, test 7932, ridge alpha 1000000, 2s
+[y12] zero     R2oos +0.00000 hit nan DM p nan
+[y12] ridge    R2oos +0.00205 hit 0.5035 DM p 0.29500298635063893
+[y12] xgboost  R2oos -0.00510 hit 0.5056 DM p 0.17530878664972738

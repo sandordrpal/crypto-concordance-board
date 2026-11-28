@@ -1,0 +1,18 @@
+version 2 inputs: 75 of 75 sources ok
+intraday: 35 / 40 / 63 inputs in F0 / F1 / F2
+[y4] F0-ridge     R2oos +0.00018 hit 0.5068 DM p 0.4262
+[y4] F0-xgboost   R2oos -0.00131 hit 0.4971 DM p 0.2948
+[y4] F1-ridge     R2oos +0.00022 hit 0.5027 DM p 0.5636
+[y4] F1-xgboost   R2oos -0.00121 hit 0.4979 DM p 0.3925
+[y4] F2-ridge     R2oos +0.00188 hit 0.5096 DM p 0.0024
+[y4] F2-xgboost   R2oos -0.00196 hit 0.4965 DM p 0.1814
+[intraday] F1 vs F0 (ridge)             DM 0.22 p 0.8285 Holm 1.0000
+[intraday] F2 vs F0 (ridge)             DM 3.00 p 0.0027 Holm 0.0213
+[intraday] F2 vs F1 (ridge)             DM 3.10 p 0.0019 Holm 0.0173
+[intraday] F1 vs F0 (xgboost)           DM 0.15 p 0.8777 Holm 1.0000
+[intraday] F2 vs F0 (xgboost)           DM -0.75 p 0.4506 Holm 1.0000
+[intraday] F2 vs F1 (xgboost)           DM -0.99 p 0.3206 Holm 1.0000
+[intraday] xgboost vs ridge (F0)        DM -1.20 p 0.2310 Holm 1.0000
+[intraday] xgboost vs ridge (F1)        DM -1.01 p 0.3104 Holm 1.0000
+[intraday] xgboost vs ridge (F2)        DM -2.78 p 0.0055 Holm 0.0384
+runtime 0.6 min
